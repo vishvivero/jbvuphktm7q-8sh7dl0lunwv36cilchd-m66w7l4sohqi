@@ -19,6 +19,8 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
   const { toast } = useToast();
 
   const sendWelcomeEmail = async (email: string) => {
+    console.log("Attempting to send welcome email to:", email);
+    
     try {
       const { data, error } = await supabase.functions.invoke('send-welcome-email', {
         body: { email }
@@ -26,11 +28,14 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
       
       if (error) {
         console.error('Error sending welcome email:', error);
-      } else {
-        console.log('Welcome email sent successfully:', data);
+        throw error;
       }
+      
+      console.log('Welcome email sent successfully:', data);
+      return data;
     } catch (error) {
-      console.error('Error invoking welcome email function:', error);
+      console.error('Critical error sending welcome email:', error);
+      throw error;
     }
   };
 
@@ -44,15 +49,30 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
           throw new Error("Passwords do not match");
         }
         
-        const { error } = await supabase.auth.signUp({
+        console.log("Attempting to sign up user with email:", email);
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/overview`,
+          }
         });
         
-        if (error) throw error;
+        if (signUpError) {
+          console.error("Sign up error:", signUpError);
+          throw signUpError;
+        }
         
-        // Send welcome email after successful signup
-        await sendWelcomeEmail(email);
+        console.log("Sign up successful:", signUpData);
+        
+        // Only attempt to send welcome email if sign up was successful
+        try {
+          await sendWelcomeEmail(email);
+          console.log("Welcome email flow completed");
+        } catch (emailError) {
+          console.error("Welcome email failed but signup succeeded:", emailError);
+          // Don't throw here - we still want to show success message for signup
+        }
         
         toast({
           title: "Check your email",
@@ -65,7 +85,10 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
           password,
         });
         
-        if (error) throw error;
+        if (error) {
+          console.error("Sign in error:", error);
+          throw error;
+        }
         
         console.log("Sign in successful:", data);
         onSuccess?.();
@@ -174,4 +197,4 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
       </motion.div>
     </div>
   );
-};
+}
