@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface SocialSignInProps {
   isSignUp?: boolean;
@@ -8,6 +9,7 @@ interface SocialSignInProps {
 
 export function SocialSignIn({ isSignUp = true }: SocialSignInProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleGoogleSignIn = async () => {
     try {
@@ -15,7 +17,11 @@ export function SocialSignIn({ isSignUp = true }: SocialSignInProps) {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/overview`
+          redirectTo: `${window.location.origin}/overview`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       });
 
@@ -24,7 +30,15 @@ export function SocialSignIn({ isSignUp = true }: SocialSignInProps) {
         throw error;
       }
 
+      if (!data.url) {
+        throw new Error("No OAuth URL returned");
+      }
+
       console.log("Google sign in response:", data);
+      
+      // The user will be redirected to Google's OAuth flow
+      window.location.href = data.url;
+      
     } catch (error: any) {
       console.error("Failed to sign in with Google:", error);
       toast({
