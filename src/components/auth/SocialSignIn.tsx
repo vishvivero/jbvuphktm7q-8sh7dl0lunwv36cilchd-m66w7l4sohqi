@@ -13,7 +13,8 @@ export function SocialSignIn({ isSignUp = true }: SocialSignInProps) {
 
   const handleGoogleSignIn = async () => {
     try {
-      console.log("Initiating Google sign in...");
+      console.log("Initiating Google sign in process...");
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -31,16 +32,18 @@ export function SocialSignIn({ isSignUp = true }: SocialSignInProps) {
       }
 
       if (!data.url) {
-        throw new Error("No OAuth URL returned");
+        console.error("No OAuth URL returned from Supabase");
+        throw new Error("Failed to initiate Google sign in");
       }
 
-      console.log("Google sign in response:", data);
+      console.log("Google sign in URL generated:", data.url);
       
-      // The user will be redirected to Google's OAuth flow
+      // Redirect to Google's OAuth flow
       window.location.href = data.url;
       
     } catch (error: any) {
       console.error("Failed to sign in with Google:", error);
+      
       toast({
         variant: "destructive",
         title: "Authentication Error",
