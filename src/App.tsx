@@ -25,6 +25,7 @@ import MyPlan from "@/pages/MyPlan";
 import Help from "@/pages/Help";
 import Reports from "@/pages/Reports";
 import AmortizationCalculatorPage from "@/pages/tools/AmortizationCalculator";
+import InterestCalculatorPage from "@/pages/tools/InterestCalculator";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,6 +50,7 @@ function App() {
               <Route path="/blog/*" element={<Layout><Blog /></Layout>} />
               <Route path="/tools" element={<Layout><FreeTools /></Layout>} />
               <Route path="/tools/amortization-calculator" element={<Layout><AmortizationCalculatorPage /></Layout>} />
+              <Route path="/tools/interest-calculator" element={<Layout><InterestCalculatorPage /></Layout>} />
               <Route path="/faq" element={<Layout><FAQ /></Layout>} />
               <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
               <Route path="/terms" element={<Layout><TermsOfService /></Layout>} />

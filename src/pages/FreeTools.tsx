@@ -18,7 +18,8 @@ const FreeTools = () => {
       title: "Interest Calculator",
       description: "Calculate interest payments and total costs for different types of loans.",
       icon: LineChart,
-      comingSoon: true,
+      url: "/tools/interest-calculator",
+      comingSoon: false,
     },
     {
       title: "Loan Comparison Tool",
