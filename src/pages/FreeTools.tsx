@@ -11,7 +11,8 @@ const FreeTools = () => {
       title: "Amortisation Calculator",
       description: "Calculate your loan amortisation schedule with detailed monthly breakdowns.",
       icon: Calculator,
-      comingSoon: true,
+      url: "/tools/amortization-calculator",
+      comingSoon: false,
     },
     {
       title: "Interest Calculator",
@@ -63,7 +64,7 @@ const FreeTools = () => {
                     </span>
                   ) : (
                     <Button asChild>
-                      <Link to={`/tools/${tool.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                      <Link to={tool.url}>
                         Try Now
                       </Link>
                     </Button>
