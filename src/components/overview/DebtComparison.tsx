@@ -212,7 +212,7 @@ export const DebtComparison = () => {
                       </div>
                     </div>
                   </div>
-                  <span className="text-lg font-semibold">
+                  <span className="text-lg font-semibold whitespace-nowrap">
                     {comparison.originalPayoffDate.toLocaleDateString('en-US', {
                       month: 'long',
                       year: 'numeric'
