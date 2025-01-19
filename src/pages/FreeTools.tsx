@@ -1,34 +1,94 @@
-import { Calculator, LineChart, PiggyBank } from "lucide-react";
+import { Calculator, LineChart, PiggyBank, Percent, CreditCard, Wallet, DollarSign, Target, BankCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { CookieConsent } from "@/components/legal/CookieConsent";
 import { LegalFooter } from "@/components/legal/LegalFooter";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 const FreeTools = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const tools = [
     {
       title: "Amortisation Calculator",
       description: "Calculate your loan amortisation schedule with detailed monthly breakdowns.",
       icon: Calculator,
       url: "/tools/amortization-calculator",
-      comingSoon: false,
+      category: "loans",
     },
     {
       title: "Interest Calculator",
       description: "Calculate interest payments and total costs for different types of loans.",
       icon: LineChart,
       url: "/tools/interest-calculator",
-      comingSoon: false,
+      category: "interest",
     },
     {
       title: "Loan Comparison Tool",
       description: "Compare different loan options to find the best rates and terms for you.",
       icon: PiggyBank,
       url: "/tools/loan-comparison-calculator",
-      comingSoon: false,
+      category: "loans",
+    },
+    {
+      title: "Debt-to-Income Calculator",
+      description: "Calculate your debt-to-income ratio and understand your financial health.",
+      icon: Percent,
+      url: "/tools/debt-to-income-calculator",
+      category: "debt",
+      comingSoon: true,
+    },
+    {
+      title: "Credit Card Payoff Calculator",
+      description: "Plan your credit card debt payoff strategy and timeline.",
+      icon: CreditCard,
+      url: "/tools/credit-card-calculator",
+      category: "credit",
+      comingSoon: true,
+    },
+    {
+      title: "Debt Consolidation Calculator",
+      description: "Compare debt consolidation options and potential savings.",
+      icon: Wallet,
+      url: "/tools/debt-consolidation-calculator",
+      category: "debt",
+      comingSoon: true,
+    },
+    {
+      title: "Emergency Fund Calculator",
+      description: "Calculate how much you should save for emergencies.",
+      icon: DollarSign,
+      url: "/tools/emergency-fund-calculator",
+      category: "savings",
+      comingSoon: true,
+    },
+    {
+      title: "Savings Goal Calculator",
+      description: "Plan and track your progress towards savings goals.",
+      icon: Target,
+      url: "/tools/savings-goal-calculator",
+      category: "savings",
+      comingSoon: true,
+    },
+    {
+      title: "Budget Planning Calculator",
+      description: "Create a personalized budget plan based on your income and expenses.",
+      icon: BankCard,
+      url: "/tools/budget-calculator",
+      category: "budget",
+      comingSoon: true,
     },
   ];
+
+  const filteredTools = tools.filter(tool => 
+    tool.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tool.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    tool.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const categories = [...new Set(tools.map(tool => tool.category))];
 
   return (
     <div className="flex flex-col min-h-screen w-full">
@@ -41,13 +101,35 @@ const FreeTools = () => {
               className="text-center mb-12"
             >
               <h1 className="text-4xl font-bold text-gray-900 mb-4">Free Financial Tools</h1>
-              <p className="text-lg text-gray-600">
+              <p className="text-lg text-gray-600 mb-8">
                 Explore our collection of free tools to help you make better financial decisions.
               </p>
+              <div className="max-w-md mx-auto">
+                <Input
+                  type="search"
+                  placeholder="Search tools by name, description, or category..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full mb-8"
+                />
+              </div>
+              <div className="flex flex-wrap justify-center gap-2 mb-8">
+                {categories.map((category) => (
+                  <Button
+                    key={category}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSearchTerm(category)}
+                    className="capitalize"
+                  >
+                    {category}
+                  </Button>
+                ))}
+              </div>
             </motion.div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {tools.map((tool, index) => (
+              {filteredTools.map((tool, index) => (
                 <motion.div
                   key={tool.title}
                   initial={{ opacity: 0, y: 20 }}
@@ -60,17 +142,18 @@ const FreeTools = () => {
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{tool.title}</h3>
                   <p className="text-gray-600 mb-4">{tool.description}</p>
-                  {tool.comingSoon ? (
-                    <span className="inline-block px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-full">
-                      Coming Soon
-                    </span>
-                  ) : (
-                    <Button asChild>
-                      <Link to={tool.url}>
-                        Try Now
-                      </Link>
-                    </Button>
-                  )}
+                  <div className="flex items-center justify-between">
+                    {tool.comingSoon ? (
+                      <span className="inline-block px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-full">
+                        Coming Soon
+                      </span>
+                    ) : (
+                      <Button asChild>
+                        <Link to={tool.url}>Try Now</Link>
+                      </Button>
+                    )}
+                    <span className="text-sm text-gray-500 capitalize">{tool.category}</span>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -78,7 +161,6 @@ const FreeTools = () => {
         </div>
       </div>
 
-      {/* Footer */}
       <footer className="bg-gray-50 py-12 border-t border-gray-100 w-full">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
