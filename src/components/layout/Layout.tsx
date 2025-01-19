@@ -13,9 +13,19 @@ export default function Layout({ children }: LayoutProps) {
   useTrackVisit();
   const location = useLocation();
   const isBlogPost = location.pathname.startsWith('/blog/post/');
+  const isToolPage = location.pathname.startsWith('/tools/') && location.pathname !== '/tools';
   
-  const backButtonText = isBlogPost ? "Back to Blog List" : "Back to Home";
-  const backButtonLink = isBlogPost ? "/blog" : "/";
+  const backButtonText = isBlogPost 
+    ? "Back to Blog List" 
+    : isToolPage 
+      ? "Back to Tools" 
+      : "Back to Home";
+      
+  const backButtonLink = isBlogPost 
+    ? "/blog" 
+    : isToolPage 
+      ? "/tools" 
+      : "/";
 
   // Scroll to top on route change
   useEffect(() => {
