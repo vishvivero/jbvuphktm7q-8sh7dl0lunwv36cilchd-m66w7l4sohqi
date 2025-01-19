@@ -50,6 +50,10 @@ export const PayoffTimelineContainer = ({
   
   const monthsSaved = Math.max(0, baselineMonths - acceleratedMonths);
 
+  // Calculate interest saved
+  const lastDataPoint = timelineData[timelineData.length - 1];
+  const interestSaved = lastDataPoint.baselineInterest - lastDataPoint.acceleratedInterest;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -82,6 +86,8 @@ export const PayoffTimelineContainer = ({
             acceleratedMonths={acceleratedMonths}
             monthsSaved={monthsSaved}
             baselineLatestDate={baselineLatestDate}
+            interestSaved={interestSaved}
+            currencySymbol={debts[0].currency_symbol}
           />
           <TimelineChart 
             data={timelineData}

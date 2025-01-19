@@ -9,6 +9,8 @@ export interface TimelineData {
   month: number;
   baselineBalance: number;
   acceleratedBalance: number;
+  baselineInterest: number;
+  acceleratedInterest: number;
   oneTimePayment?: number;
   currencySymbol: string;
 }
@@ -30,6 +32,8 @@ export const calculateTimelineData = (
   const balances = new Map<string, number>();
   const acceleratedBalances = new Map<string, number>();
   const startDate = new Date();
+  let totalBaselineInterest = 0;
+  let totalAcceleratedInterest = 0;
   
   // Initialize balances
   debts.forEach(debt => {
@@ -53,6 +57,7 @@ export const calculateTimelineData = (
 
     // Calculate baseline scenario
     let totalBaselineBalance = 0;
+    let monthlyBaselineInterest = 0;
     let remainingBaselinePayment = totalMinimumPayment;
 
     debts.forEach(debt => {
@@ -60,6 +65,7 @@ export const calculateTimelineData = (
       if (baselineBalance > 0) {
         const monthlyRate = debt.interest_rate / 1200;
         const baselineInterest = baselineBalance * monthlyRate;
+        monthlyBaselineInterest += baselineInterest;
         const payment = Math.min(remainingBaselinePayment, debt.minimum_payment);
         const newBaselineBalance = Math.max(0, baselineBalance + baselineInterest - payment);
         
@@ -69,8 +75,11 @@ export const calculateTimelineData = (
       }
     });
 
+    totalBaselineInterest += monthlyBaselineInterest;
+
     // Calculate accelerated scenario
     let totalAcceleratedBalance = 0;
+    let monthlyAcceleratedInterest = 0;
     let remainingAcceleratedPayment = totalMonthlyPayment + oneTimeFundingAmount;
 
     // First apply minimum payments
@@ -79,6 +88,7 @@ export const calculateTimelineData = (
       if (acceleratedBalance > 0) {
         const monthlyRate = debt.interest_rate / 1200;
         const acceleratedInterest = acceleratedBalance * monthlyRate;
+        monthlyAcceleratedInterest += acceleratedInterest;
         const minPayment = Math.min(debt.minimum_payment, acceleratedBalance + acceleratedInterest);
         remainingAcceleratedPayment -= minPayment;
         
@@ -86,6 +96,8 @@ export const calculateTimelineData = (
         acceleratedBalances.set(debt.id, newBalance);
       }
     });
+
+    totalAcceleratedInterest += monthlyAcceleratedInterest;
 
     // Then apply extra payments according to strategy
     if (remainingAcceleratedPayment > 0) {
@@ -113,6 +125,8 @@ export const calculateTimelineData = (
       month,
       baselineBalance: Number(totalBaselineBalance.toFixed(2)),
       acceleratedBalance: Number(totalAcceleratedBalance.toFixed(2)),
+      baselineInterest: Number(totalBaselineInterest.toFixed(2)),
+      acceleratedInterest: Number(totalAcceleratedInterest.toFixed(2)),
       oneTimePayment: oneTimeFundingAmount || undefined,
       currencySymbol: debts[0].currency_symbol
     });
@@ -129,7 +143,10 @@ export const calculateTimelineData = (
     totalMonths: month,
     dataPoints: data.length,
     finalBaselineBalance: data[data.length - 1].baselineBalance,
-    finalAcceleratedBalance: data[data.length - 1].acceleratedBalance
+    finalAcceleratedBalance: data[data.length - 1].acceleratedBalance,
+    totalBaselineInterest,
+    totalAcceleratedInterest,
+    interestSaved: totalBaselineInterest - totalAcceleratedInterest
   });
 
   return data;

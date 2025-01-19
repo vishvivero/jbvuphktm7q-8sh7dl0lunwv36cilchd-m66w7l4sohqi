@@ -5,13 +5,17 @@ interface TimelineMetricsProps {
   acceleratedMonths: number;
   monthsSaved: number;
   baselineLatestDate: Date;
+  interestSaved: number;
+  currencySymbol: string;
 }
 
 export const TimelineMetrics = ({ 
   baselineMonths, 
   acceleratedMonths, 
   monthsSaved,
-  baselineLatestDate 
+  baselineLatestDate,
+  interestSaved,
+  currencySymbol
 }: TimelineMetricsProps) => {
   return (
     <div className="space-y-8">
@@ -19,7 +23,7 @@ export const TimelineMetrics = ({
         <div className="space-y-1">
           <p className="text-sm font-medium text-muted-foreground">Interest Saved</p>
           <p className="text-2xl font-bold text-emerald-600">
-            {monthsSaved} months
+            {currencySymbol}{interestSaved.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
         <div className="space-y-1">
@@ -32,7 +36,7 @@ export const TimelineMetrics = ({
       <div className="text-sm text-muted-foreground">
         {monthsSaved > 0 && (
           <span className="text-emerald-600">
-            You'll be debt-free {monthsSaved} months sooner!
+            You'll be debt-free {monthsSaved} months sooner and save {currencySymbol}{interestSaved.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} in interest!
           </span>
         )}
       </div>
