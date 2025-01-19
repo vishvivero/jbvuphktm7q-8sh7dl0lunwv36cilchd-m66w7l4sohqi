@@ -28,7 +28,7 @@ export const NewPost = () => {
             setCategory={setCategory}
             image={image}
             setImage={setImage}
-            imagePreview={setImagePreview}
+            imagePreview={imagePreview}
           />
         </CardContent>
       </Card>
