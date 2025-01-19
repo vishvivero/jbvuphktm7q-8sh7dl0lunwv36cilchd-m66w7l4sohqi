@@ -73,7 +73,7 @@ export const AmortizationCalculator = () => {
                   <SelectTrigger className="w-24">
                     <SelectValue placeholder="Currency" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-white border border-gray-200 shadow-lg">
                     <SelectItem value="£">GBP (£)</SelectItem>
                     <SelectItem value="$">USD ($)</SelectItem>
                     <SelectItem value="€">EUR (€)</SelectItem>

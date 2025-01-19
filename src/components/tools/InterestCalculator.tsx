@@ -154,7 +154,7 @@ export function InterestCalculator() {
                         <SelectValue placeholder="Select compounding frequency" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="bg-white border border-gray-200 shadow-lg">
                       <SelectItem value="annually">Annually</SelectItem>
                       <SelectItem value="semi-annually">Semi-annually</SelectItem>
                       <SelectItem value="quarterly">Quarterly</SelectItem>
