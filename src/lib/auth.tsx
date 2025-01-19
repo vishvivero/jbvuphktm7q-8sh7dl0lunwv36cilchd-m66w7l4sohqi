@@ -26,8 +26,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       console.log("Auth provider: Starting sign out");
-      
-      // Clear local state first
       setUser(null);
       setSession(null);
       localStorage.clear();
@@ -67,11 +65,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleAuthCode = async (code: string) => {
+  const handleAuthCode = async () => {
     try {
-      console.log("Handling auth code...");
+      // Check URL hash for code
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const searchParams = new URLSearchParams(window.location.search);
       
-      // Exchange the code for a session
+      // Check both hash and search parameters for the code
+      const code = hashParams.get('code') || searchParams.get('code');
+      
+      if (!code) {
+        console.log("No auth code found in URL");
+        return false;
+      }
+
+      console.log("Found auth code in URL, exchanging for session...");
+      
       const { data, error } = await supabase.auth.exchangeCodeForSession(code);
       
       if (error) {
@@ -86,10 +95,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         // Clean up the URL
         window.history.replaceState({}, '', '/overview');
+        return true;
       }
+      
+      return false;
     } catch (error) {
       console.error("Error in handleAuthCode:", error);
-      throw error;
+      return false;
     }
   };
 
@@ -100,17 +112,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         console.log("Initializing auth state...");
         
-        // Check if we have a code parameter in the URL
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        
-        if (code) {
-          console.log("OAuth code detected in URL:", code);
-          await handleAuthCode(code);
+        // First try to handle any auth code in the URL
+        const handled = await handleAuthCode();
+        if (handled) {
+          console.log("Successfully handled auth code");
+          if (mounted) setLoading(false);
           return;
         }
         
-        // Get initial session if no code present
+        // If no auth code, proceed with normal session check
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         
         if (mounted) {

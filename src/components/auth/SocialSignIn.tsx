@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
 
 interface SocialSignInProps {
   isSignUp?: boolean;
@@ -9,7 +8,6 @@ interface SocialSignInProps {
 
 export function SocialSignIn({ isSignUp = true }: SocialSignInProps) {
   const { toast } = useToast();
-  const navigate = useNavigate();
 
   const handleGoogleSignIn = async () => {
     try {
@@ -37,6 +35,7 @@ export function SocialSignIn({ isSignUp = true }: SocialSignInProps) {
       }
 
       console.log("Google sign in URL generated:", data.url);
+      // Directly redirect to the OAuth URL
       window.location.href = data.url;
       
     } catch (error: any) {
