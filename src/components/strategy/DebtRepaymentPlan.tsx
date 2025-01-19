@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Download, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import { Debt } from "@/lib/types";
 import { Strategy } from "@/lib/strategies";
-import { calculatePayoffDetails } from "@/lib/utils/payment/paymentCalculations";
 import { generatePayoffStrategyPDF } from "@/lib/utils/pdfGenerator";
 import { useToast } from "@/components/ui/use-toast";
 import { PaymentSchedule } from "@/components/debt/PaymentSchedule";
 import { Badge } from "@/components/ui/badge";
-import { calculatePaymentSchedule } from "@/lib/utils/payment/paymentSchedule";
+import { calculateTimelineData } from "@/components/debt/timeline/TimelineCalculator";
+import { calculatePaymentSchedule } from "@/components/debt/utils/paymentSchedule";
 
 interface DebtRepaymentPlanProps {
   debts: Debt[];
@@ -30,14 +30,9 @@ export const DebtRepaymentPlan = ({
   console.log('DebtRepaymentPlan: Starting calculation with strategy:', selectedStrategy.name);
   const sortedDebts = selectedStrategy.calculate([...debts]);
   
-  // Use the same calculation method as OverviewSummary
-  const payoffDetails = calculatePayoffDetails(
-    sortedDebts,
-    totalMonthlyPayment,
-    selectedStrategy,
-    [] // We'll add one-time funding support in a future update if needed
-  );
-
+  // Calculate timeline data using the accelerated timeline logic
+  const timelineData = calculateTimelineData(sortedDebts, totalMonthlyPayment, selectedStrategy);
+  
   // Calculate payment allocations based on the strategy
   const allocations = new Map<string, number>();
   const totalMinPayments = sortedDebts.reduce((sum, debt) => sum + debt.minimum_payment, 0);
@@ -56,6 +51,24 @@ export const DebtRepaymentPlan = ({
       (allocations.get(highestPriorityDebt.id) || 0) + extraPayment
     );
   }
+
+  // Calculate payoff details from timeline data
+  const payoffDetails = sortedDebts.reduce((acc, debt) => {
+    const debtTimeline = timelineData.filter(data => 
+      data.acceleratedBalance === 0 && 
+      data.baselineBalance === 0
+    );
+    const months = debtTimeline.length;
+    const payoffDate = new Date();
+    payoffDate.setMonth(payoffDate.getMonth() + months);
+
+    acc[debt.id] = {
+      months,
+      payoffDate,
+      totalInterest: debtTimeline[debtTimeline.length - 1]?.acceleratedInterest || 0
+    };
+    return acc;
+  }, {} as { [key: string]: { months: number; payoffDate: Date; totalInterest: number } });
 
   const handleDownload = () => {
     try {
@@ -112,7 +125,7 @@ export const DebtRepaymentPlan = ({
                 Debt Repayment Plan
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                View your personalized debt payoff schedule
+                View your personalized debt payoff schedule using accelerated payments
               </p>
             </div>
             <div className="flex items-center gap-2">
