@@ -8,6 +8,11 @@ import { useProfile } from "@/hooks/use-profile";
 import { unifiedDebtCalculationService } from "@/lib/services/UnifiedDebtCalculationService";
 import { generateChartData } from "./debt/chart/chartUtils";
 import { Loader2 } from "lucide-react";
+import { Suspense, lazy } from 'react';
+
+const LazyChartContainer = lazy(() => import('./debt/chart/ChartContainer').then(module => ({
+  default: module.ChartContainer
+})));
 
 interface DebtChartProps {
   debts: Debt[];
@@ -24,7 +29,6 @@ export const DebtChart = ({
 }: DebtChartProps) => {
   const { profile } = useProfile();
   
-  // Early return if no debts or profile
   if (!debts?.length || !profile) {
     console.log('No debts or profile available:', { debtCount: debts?.length, hasProfile: !!profile });
     return (
@@ -61,12 +65,18 @@ export const DebtChart = ({
     const { maxDebt } = calculateChartDomain(chartData);
 
     return (
-      <ChartContainer 
-        data={chartData}
-        maxDebt={maxDebt}
-        currencySymbol={currencySymbol}
-        oneTimeFundings={oneTimeFundings}
-      />
+      <Suspense fallback={
+        <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      }>
+        <LazyChartContainer 
+          data={chartData}
+          maxDebt={maxDebt}
+          currencySymbol={currencySymbol}
+          oneTimeFundings={oneTimeFundings}
+        />
+      </Suspense>
     );
   } catch (error) {
     console.error('Error calculating debt chart data:', error);

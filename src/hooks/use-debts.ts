@@ -24,7 +24,7 @@ export const useDebts = () => {
       const { data, error } = await supabase
         .from("debts")
         .select("*")
-        .eq("user_id", user.id)  // Add this line to filter by user_id
+        .eq("user_id", user.id)
         .order("created_at", { ascending: true });
 
       if (error) {
@@ -35,6 +35,8 @@ export const useDebts = () => {
       console.log("Fetched debts for user:", data);
       return data as Debt[];
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    cacheTime: 1000 * 60 * 30, // Keep cache for 30 minutes
     enabled: !!user?.id,
   });
 

@@ -24,7 +24,7 @@ export function useProfile() {
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error fetching profile:", error);
@@ -39,6 +39,8 @@ export function useProfile() {
       console.log("Profile data fetched:", data);
       return data as Profile;
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    cacheTime: 1000 * 60 * 30, // Keep cache for 30 minutes
     enabled: !!user?.id,
   });
 
@@ -55,7 +57,7 @@ export function useProfile() {
         .update(updatedProfile)
         .eq("id", user.id)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error updating profile:", error);
