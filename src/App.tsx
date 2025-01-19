@@ -1,10 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from "@/pages/Home";
-import AboutPage from "@/pages/About";
-import BlogPage from "@/pages/Blog";
-import FAQPage from "@/pages/FAQ";
-import PricingPage from "@/pages/Pricing";
-import ToolsPage from "@/pages/FreeTools";
+import { MainLayout } from "@/components/layout/MainLayout";
 
 // Import calculator pages
 import DebtToIncomeCalculatorPage from "@/pages/tools/DebtToIncomeCalculator";
@@ -18,12 +13,12 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/blog" element={<BlogPage />} />
-        <Route path="/faq" element={<FAQPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/tools" element={<ToolsPage />} />
+        <Route path="/" element={<MainLayout><div>Home Page</div></MainLayout>} />
+        <Route path="/about" element={<MainLayout><div>About Page</div></MainLayout>} />
+        <Route path="/blog" element={<MainLayout><div>Blog Page</div></MainLayout>} />
+        <Route path="/faq" element={<MainLayout><div>FAQ Page</div></MainLayout>} />
+        <Route path="/pricing" element={<MainLayout><div>Pricing Page</div></MainLayout>} />
+        <Route path="/tools" element={<MainLayout><div>Tools Page</div></MainLayout>} />
         
         {/* Calculator Routes */}
         <Route path="/tools/debt-to-income-calculator" element={<DebtToIncomeCalculatorPage />} />
