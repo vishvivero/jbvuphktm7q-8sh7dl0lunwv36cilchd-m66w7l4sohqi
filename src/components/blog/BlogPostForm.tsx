@@ -3,7 +3,7 @@ import { BlogImageUpload } from "./form/BlogImageUpload";
 import { BlogContent } from "./form/BlogContent";
 import { BlogFormProps } from "./types";
 
-export const BlogFormFields = ({
+export const BlogPostForm = ({
   title,
   setTitle,
   content,
