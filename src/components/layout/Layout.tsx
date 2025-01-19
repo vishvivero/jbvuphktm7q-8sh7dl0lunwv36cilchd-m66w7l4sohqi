@@ -12,7 +12,7 @@ interface LayoutProps {
 export default function Layout({ children }: LayoutProps) {
   useTrackVisit();
   const location = useLocation();
-  const isBlogPost = location.pathname.match(/^\/blog\/[^/]+$/);
+  const isBlogPost = location.pathname.startsWith('/blog/post/');
   
   const backButtonText = isBlogPost ? "Back to Blog List" : "Back to Home";
   const backButtonLink = isBlogPost ? "/blog" : "/";
