@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Suspense, lazy } from "react";
 import { LoadingPage } from "@/components/loading/LoadingPage";
 import { AuthProvider } from "@/providers/AuthProvider";
@@ -42,6 +41,11 @@ const SavingsGoalCalculatorPage = lazy(() => import("@/pages/tools/SavingsGoalCa
 const BudgetPlanningCalculatorPage = lazy(() => import("@/pages/tools/BudgetPlanningCalculator"));
 
 const queryClient = new QueryClient();
+
+// Only import devtools in development
+const ReactQueryDevtools = process.env.NODE_ENV === 'development' 
+  ? lazy(() => import('@tanstack/react-query-devtools').then(mod => ({ default: mod.ReactQueryDevtools })))
+  : null;
 
 export default function App() {
   return (
@@ -95,7 +99,11 @@ export default function App() {
             </SupabaseProvider>
           </AnalyticsProvider>
           <Toaster />
-          <ReactQueryDevtools initialIsOpen={false} />
+          {process.env.NODE_ENV === 'development' && ReactQueryDevtools && (
+            <Suspense fallback={null}>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </Suspense>
+          )}
         </ThemeProvider>
       </QueryClientProvider>
     </ErrorBoundary>
