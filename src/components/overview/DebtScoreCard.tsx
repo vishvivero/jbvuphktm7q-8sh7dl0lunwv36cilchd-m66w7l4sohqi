@@ -116,9 +116,12 @@ export const DebtScoreCard = () => {
 
     return (
       <div className="space-y-4 mt-6">
-        <h3 className="text-xl font-semibold text-gray-900">
-          Your debt repayment plan is fully optimized for interest and duration savings.
+        <h3 className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent">
+          Your Optimized Debt Repayment Strategy
         </h3>
+        <p className="text-gray-600 mt-2">
+          We've analyzed your debts and created a plan to minimize interest and accelerate your path to financial freedom.
+        </p>
         <div className="space-y-4">
           <div className="p-4 bg-emerald-50/50 rounded-lg">
             <div className="text-gray-600">Interest Savings</div>
