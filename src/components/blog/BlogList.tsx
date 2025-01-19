@@ -102,7 +102,7 @@ export const BlogList = () => {
       console.log("Blogs fetched:", data?.length, "posts");
       return data || [];
     },
-    enabled: true, // Always fetch blogs
+    enabled: true,
   });
 
   if (isLoading) {
@@ -163,12 +163,15 @@ export const BlogList = () => {
         ) : (
           <div className="space-y-6">
             {blogs?.map((blog) => {
-              console.log("Rendering blog card:", blog.slug); // Add logging for debugging
+              console.log("Rendering blog card:", blog.slug);
               return (
                 <Link 
                   key={blog.id} 
                   to={`/blog/post/${blog.slug}`}
-                  onClick={() => console.log("Blog card clicked:", blog.slug)} // Add click logging
+                  onClick={() => {
+                    console.log("Blog card clicked:", blog.slug);
+                  }}
+                  className="block" // Add this to ensure the link takes full width
                 >
                   <Card className="hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
