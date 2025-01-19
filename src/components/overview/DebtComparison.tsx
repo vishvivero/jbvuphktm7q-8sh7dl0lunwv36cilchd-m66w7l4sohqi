@@ -246,7 +246,7 @@ export const DebtComparison = () => {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm mb-2">
-                      <span className="text-gray-600 dark:text-gray-300">
+                      <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
                         Principal: <span className="font-medium text-emerald-600">{principalPercentage.toFixed(1)}%</span>
                       </span>
                       <span className="text-gray-600 dark:text-gray-300">
