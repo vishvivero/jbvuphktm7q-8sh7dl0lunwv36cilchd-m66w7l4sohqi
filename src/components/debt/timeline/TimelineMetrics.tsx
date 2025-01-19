@@ -17,7 +17,7 @@ export const TimelineMetrics = ({
     <div className="space-y-8">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground">Time Saved</p>
+          <p className="text-sm font-medium text-muted-foreground">Interest Saved</p>
           <p className="text-2xl font-bold text-emerald-600">
             {monthsSaved} months
           </p>
