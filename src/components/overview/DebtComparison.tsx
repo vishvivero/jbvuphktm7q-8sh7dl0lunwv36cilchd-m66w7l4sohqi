@@ -1,26 +1,16 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
-  Coins,
-  Calendar,
-  ArrowDown,
-  Percent,
-  DollarSign,
-  Award,
-  Info,
-  ArrowRight,
-  Plane,
-  Smartphone,
-  Palmtree,
-  ChevronDown,
-  ChevronUp,
+  Coins, Calendar, ArrowDown, Percent, DollarSign, Award,
+  Info, ArrowRight, Plane, Smartphone, Palmtree,
+  ChevronDown, ChevronUp,
 } from "lucide-react";
 import { useDebts } from "@/hooks/use-debts";
 import { useOneTimeFunding } from "@/hooks/use-one-time-funding";
-import { unifiedDebtCalculationService } from "@/lib/services/UnifiedDebtCalculationService";
 import { strategies } from "@/lib/strategies";
+import { calculateTimelineData } from "@/components/debt/timeline/TimelineCalculator";
 import {
-  Tooltip as UITooltip,
+  Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
@@ -47,7 +37,9 @@ export const DebtComparison = () => {
         timeSaved: { years: 0, months: 0 },
         moneySaved: 0,
         baselineYears: 0,
-        baselineMonths: 0
+        baselineMonths: 0,
+        principalPercentage: 0,
+        interestPercentage: 0
       };
     }
 
@@ -55,103 +47,51 @@ export const DebtComparison = () => {
 
     const selectedStrategy = strategies.find(s => s.id === profile.selected_strategy) || strategies[0];
     
-    const formattedFundings = oneTimeFundings.map(funding => ({
-      amount: funding.amount,
-      payment_date: new Date(funding.payment_date)
-    }));
-
-    const individualPayoffTimes = debts.map(debt => {
-      const monthlyRate = debt.interest_rate / 1200;
-      const balance = debt.balance;
-      const payment = debt.minimum_payment;
-      
-      if (payment <= balance * monthlyRate) {
-        return { debt, months: Infinity };
-      }
-      
-      const months = Math.ceil(
-        Math.log(payment / (payment - balance * monthlyRate)) / Math.log(1 + monthlyRate)
-      );
-      
-      return { debt, months };
-    });
-
-    const longestPayoff = individualPayoffTimes.reduce((max, current) => 
-      current.months > max.months ? current : max
-    );
+    // Calculate minimum payments total
+    const totalMinimumPayment = debts.reduce((sum, debt) => sum + debt.minimum_payment, 0);
     
-    const originalPayoff = unifiedDebtCalculationService.calculatePayoffDetails(
-      debts,
-      debts.reduce((sum, debt) => sum + debt.minimum_payment, 0),
-      selectedStrategy,
-      []
-    );
-
-    const optimizedPayoff = unifiedDebtCalculationService.calculatePayoffDetails(
+    // Get timeline data
+    const timelineData = calculateTimelineData(
       debts,
       profile.monthly_payment,
       selectedStrategy,
-      formattedFundings
+      oneTimeFundings
     );
 
-    let originalLatestDate = new Date();
-    let optimizedLatestDate = new Date();
-    let optimizedTotalInterest = 0;
-    let originalTotalInterest = 0;
-
-    // Calculate latest payoff date and total interest for original timeline
-    Object.values(originalPayoff).forEach(detail => {
-      originalTotalInterest += detail.totalInterest;
-      if (detail.payoffDate > originalLatestDate) {
-        originalLatestDate = detail.payoffDate;
-      }
-    });
-
-    // Calculate latest payoff date and total interest for optimized timeline
-    Object.values(optimizedPayoff).forEach(detail => {
-      optimizedTotalInterest += detail.totalInterest;
-      if (detail.payoffDate > optimizedLatestDate) {
-        optimizedLatestDate = detail.payoffDate;
-      }
-    });
-
-    console.log('Payoff dates comparison:', {
-      original: originalLatestDate,
-      optimized: optimizedLatestDate,
-      oneTimeFundings: formattedFundings
-    });
-
-    const monthsDiff = Math.max(0, (originalLatestDate.getFullYear() - optimizedLatestDate.getFullYear()) * 12 +
-                      (originalLatestDate.getMonth() - optimizedLatestDate.getMonth()));
+    // Get the last data point for final balances and interest
+    const lastDataPoint = timelineData[timelineData.length - 1];
     
-    const baselineYears = Math.floor(longestPayoff.months / 12);
-    const baselineMonths = longestPayoff.months % 12;
-    
-    const comparison = {
+    // Find when accelerated balance reaches 0
+    const acceleratedPayoffPoint = timelineData.find(d => d.acceleratedBalance <= 0);
+    const optimizedPayoffDate = acceleratedPayoffPoint 
+      ? new Date(acceleratedPayoffPoint.date)
+      : new Date(lastDataPoint.date);
+
+    // Calculate payment efficiency from original timeline
+    const totalPayment = lastDataPoint.baselineInterest + debts.reduce((sum, debt) => sum + debt.balance, 0);
+    const interestPercentage = (lastDataPoint.baselineInterest / totalPayment) * 100;
+    const principalPercentage = 100 - interestPercentage;
+
+    // Calculate months for baseline scenario
+    const baselineMonths = timelineData.length;
+    const baselineYears = Math.floor(baselineMonths / 12);
+    const remainingMonths = baselineMonths % 12;
+
+    return {
       totalDebts: debts.length,
-      originalPayoffDate: originalLatestDate,
-      originalTotalInterest,
-      optimizedPayoffDate: optimizedLatestDate,
-      optimizedTotalInterest,
-      timeSaved: {
-        years: Math.floor(monthsDiff / 12),
-        months: monthsDiff % 12
-      },
-      moneySaved: originalTotalInterest - optimizedTotalInterest,
+      originalPayoffDate: new Date(lastDataPoint.date),
+      originalTotalInterest: lastDataPoint.baselineInterest,
+      optimizedPayoffDate,
+      optimizedTotalInterest: lastDataPoint.acceleratedInterest,
+      moneySaved: lastDataPoint.baselineInterest - lastDataPoint.acceleratedInterest,
       baselineYears,
-      baselineMonths
+      baselineMonths: remainingMonths,
+      principalPercentage,
+      interestPercentage
     };
-
-    console.log('Final comparison results:', comparison);
-    
-    return comparison;
   };
 
   const comparison = calculateComparison();
-
-  const totalPayment = comparison.originalTotalInterest + (debts?.reduce((sum, debt) => sum + debt.balance, 0) || 0);
-  const interestPercentage = (comparison.originalTotalInterest / totalPayment) * 100;
-  const principalPercentage = 100 - interestPercentage;
 
   return (
     <motion.div
@@ -168,7 +108,7 @@ export const DebtComparison = () => {
               <Calendar className="w-5 h-5 text-gray-500" />
               How Does Your Debt Look Now?
               <TooltipProvider>
-                <UITooltip>
+                <Tooltip>
                   <TooltipTrigger>
                     <Info className="w-4 h-4 text-gray-400" />
                   </TooltipTrigger>
@@ -178,7 +118,7 @@ export const DebtComparison = () => {
                   >
                     <p>This shows your current debt situation without any optimizations</p>
                   </TooltipContent>
-                </UITooltip>
+                </Tooltip>
               </TooltipProvider>
             </CardTitle>
           </CardHeader>
@@ -193,7 +133,7 @@ export const DebtComparison = () => {
                       <span className="text-gray-600 dark:text-gray-300 font-medium">
                         Debt-Free Date
                         <TooltipProvider>
-                          <UITooltip>
+                          <Tooltip>
                             <TooltipTrigger>
                               <Info className="w-4 h-4 text-gray-400 ml-2" />
                             </TooltipTrigger>
@@ -203,7 +143,7 @@ export const DebtComparison = () => {
                             >
                               <p>Based on minimum payments only (baseline scenario)</p>
                             </TooltipContent>
-                          </UITooltip>
+                          </Tooltip>
                         </TooltipProvider>
                       </span>
                       <div className="text-sm text-gray-500">
@@ -227,7 +167,7 @@ export const DebtComparison = () => {
                   <div className="flex items-center gap-3">
                     <Percent className="w-5 h-5 text-gray-500" />
                     <TooltipProvider>
-                      <UITooltip>
+                      <Tooltip>
                         <TooltipTrigger className="flex items-center gap-2">
                           <span className="text-gray-600 dark:text-gray-300">Payment Efficiency</span>
                           <Info className="w-4 h-4 text-gray-400" />
@@ -239,7 +179,7 @@ export const DebtComparison = () => {
                         >
                           <p>How your payments are split between reducing debt (principal) and paying interest</p>
                         </TooltipContent>
-                      </UITooltip>
+                      </Tooltip>
                     </TooltipProvider>
                   </div>
                 </div>
@@ -247,23 +187,23 @@ export const DebtComparison = () => {
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm mb-2">
                       <span className="text-gray-600 dark:text-gray-300 whitespace-nowrap">
-                        Principal: <span className="font-medium text-emerald-600">{principalPercentage.toFixed(1)}%</span>
+                        Principal: <span className="font-medium text-emerald-600">{comparison.principalPercentage.toFixed(1)}%</span>
                       </span>
                       <span className="text-gray-600 dark:text-gray-300">
-                        Interest: <span className="font-medium text-red-600">{interestPercentage.toFixed(1)}%</span>
+                        Interest: <span className="font-medium text-red-600">{comparison.interestPercentage.toFixed(1)}%</span>
                       </span>
                     </div>
                     <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden">
                       <div className="h-full flex">
                         <motion.div
                           initial={{ width: 0 }}
-                          animate={{ width: `${principalPercentage}%` }}
+                          animate={{ width: `${comparison.principalPercentage}%` }}
                           transition={{ duration: 1, ease: "easeOut" }}
                           className="h-full bg-emerald-500"
                         />
                         <motion.div
                           initial={{ width: 0 }}
-                          animate={{ width: `${interestPercentage}%` }}
+                          animate={{ width: `${comparison.interestPercentage}%` }}
                           transition={{ duration: 1, ease: "easeOut" }}
                           className="h-full bg-red-500"
                         />
@@ -272,7 +212,10 @@ export const DebtComparison = () => {
                   </div>
                 </div>
                 <div className="mt-4 text-sm text-center text-gray-500">
-                  {currencySymbol}{comparison.originalTotalInterest.toLocaleString()} goes to interest
+                  {currencySymbol}{comparison.originalTotalInterest.toLocaleString(undefined, {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                  })} goes to interest
                 </div>
               </div>
 
@@ -330,14 +273,14 @@ export const DebtComparison = () => {
               <Award className="w-5 h-5" />
               What Debtfreeo Can Save You
               <TooltipProvider>
-                <UITooltip>
+                <Tooltip>
                   <TooltipTrigger>
                     <Info className="w-4 h-4 text-emerald-400" />
                   </TooltipTrigger>
                   <TooltipContent side="right" className="z-[60]">
                     <p>Your potential savings with our optimized debt repayment strategy</p>
                   </TooltipContent>
-                </UITooltip>
+                </Tooltip>
               </TooltipProvider>
             </CardTitle>
           </CardHeader>
@@ -350,8 +293,10 @@ export const DebtComparison = () => {
                     <div>
                       <span className="text-gray-600 dark:text-gray-300">Optimized Debt-Free Date</span>
                       <div className="text-sm text-emerald-600 font-medium">
-                        {comparison.timeSaved.years > 0 && `${comparison.timeSaved.years} years`}
-                        {comparison.timeSaved.months > 0 && ` ${comparison.timeSaved.months} months`} earlier!
+                        {comparison.moneySaved > 0 && `Save ${currencySymbol}${comparison.moneySaved.toLocaleString(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0
+                        })} in interest!`}
                       </div>
                     </div>
                   </div>
