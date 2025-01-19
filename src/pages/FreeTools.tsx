@@ -38,7 +38,7 @@ const FreeTools = () => {
       icon: Percent,
       url: "/tools/debt-to-income-calculator",
       category: "debt",
-      comingSoon: true,
+      comingSoon: false,
     },
     {
       title: "Credit Card Payoff Calculator",
@@ -46,7 +46,7 @@ const FreeTools = () => {
       icon: CreditCard,
       url: "/tools/credit-card-calculator",
       category: "credit",
-      comingSoon: true,
+      comingSoon: false,
     },
     {
       title: "Debt Consolidation Calculator",
@@ -54,7 +54,7 @@ const FreeTools = () => {
       icon: Wallet,
       url: "/tools/debt-consolidation-calculator",
       category: "debt",
-      comingSoon: true,
+      comingSoon: false,
     },
     {
       title: "Emergency Fund Calculator",
@@ -62,7 +62,7 @@ const FreeTools = () => {
       icon: DollarSign,
       url: "/tools/emergency-fund-calculator",
       category: "savings",
-      comingSoon: true,
+      comingSoon: false,
     },
     {
       title: "Savings Goal Calculator",
@@ -70,7 +70,7 @@ const FreeTools = () => {
       icon: Target,
       url: "/tools/savings-goal-calculator",
       category: "savings",
-      comingSoon: true,
+      comingSoon: false,
     },
     {
       title: "Budget Planning Calculator",
@@ -78,7 +78,7 @@ const FreeTools = () => {
       icon: BarChart3,
       url: "/tools/budget-calculator",
       category: "budget",
-      comingSoon: true,
+      comingSoon: false,
     },
   ];
 
@@ -90,6 +90,7 @@ const FreeTools = () => {
 
   const categories = [...new Set(tools.map(tool => tool.category))];
 
+  // ... keep existing code (rest of the component remains unchanged)
   return (
     <div className="flex flex-col min-h-screen w-full">
       <div className="flex-1 w-full bg-gray-50">
@@ -161,8 +162,8 @@ const FreeTools = () => {
         </div>
       </div>
 
-      <footer className="bg-gray-50 py-12 border-t border-gray-100 w-full">
-        <div className="container mx-auto px-4 max-w-7xl">
+      <footer className="bg-white border-t py-12">
+        <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-4">
               <Link to="/" className="text-xl font-bold text-gray-900 hover:text-primary transition-colors">
