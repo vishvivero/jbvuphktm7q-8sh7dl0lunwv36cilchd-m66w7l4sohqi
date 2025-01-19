@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +21,12 @@ import { PerformanceMetrics } from "@/components/admin/PerformanceMetrics";
 
 const Admin = () => {
   const { user } = useAuth();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [excerpt, setExcerpt] = useState("");
+  const [category, setCategory] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const { data: profile, isLoading, error } = useQuery({
     queryKey: ["profile", user?.id],
@@ -73,8 +80,36 @@ const Admin = () => {
             <Route index element={<AdminMetrics />} />
             <Route path="blogs" element={<AdminBlogList />} />
             <Route path="categories" element={<CategoryManager />} />
-            <Route path="new-post" element={<BlogPostForm />} />
-            <Route path="edit/:id" element={<BlogPostForm />} />
+            <Route path="new-post" element={
+              <BlogPostForm
+                title={title}
+                setTitle={setTitle}
+                content={content}
+                setContent={setContent}
+                excerpt={excerpt}
+                setExcerpt={setExcerpt}
+                category={category}
+                setCategory={setCategory}
+                image={image}
+                setImage={setImage}
+                imagePreview={setImagePreview}
+              />
+            } />
+            <Route path="edit/:id" element={
+              <BlogPostForm
+                title={title}
+                setTitle={setTitle}
+                content={content}
+                setContent={setContent}
+                excerpt={excerpt}
+                setExcerpt={setExcerpt}
+                category={category}
+                setCategory={setCategory}
+                image={image}
+                setImage={setImage}
+                imagePreview={setImagePreview}
+              />
+            } />
             <Route path="users" element={<UserManagement />} />
             <Route path="settings" element={<SystemSettings />} />
             <Route path="security" element={<SecurityMonitoring />} />
