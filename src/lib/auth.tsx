@@ -67,6 +67,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const handleAuthCode = async (code: string) => {
+    try {
+      console.log("Handling auth code...");
+      
+      // Exchange the code for a session
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+      
+      if (error) {
+        console.error("Error exchanging code for session:", error);
+        throw error;
+      }
+      
+      if (data.session) {
+        console.log("Successfully exchanged code for session:", data.session.user.id);
+        setSession(data.session);
+        setUser(data.session.user);
+        
+        // Clean up the URL
+        window.history.replaceState({}, '', '/overview');
+      }
+    } catch (error) {
+      console.error("Error in handleAuthCode:", error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
 
@@ -77,11 +103,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Check if we have a code parameter in the URL
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
+        
         if (code) {
           console.log("OAuth code detected in URL:", code);
+          await handleAuthCode(code);
+          return;
         }
         
-        // Get initial session
+        // Get initial session if no code present
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         
         if (mounted) {
@@ -109,12 +138,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 console.log("New session established:", currentSession.user.id);
                 setSession(currentSession);
                 setUser(currentSession.user);
-                
-                // If we're on the callback URL, redirect to overview
-                if (window.location.pathname.includes('/overview') && window.location.search.includes('code=')) {
-                  console.log("Redirecting to clean overview URL");
-                  window.history.replaceState({}, '', '/overview');
-                }
               } else {
                 setSession(null);
                 setUser(null);
