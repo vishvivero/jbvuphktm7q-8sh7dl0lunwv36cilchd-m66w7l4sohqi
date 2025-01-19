@@ -22,8 +22,7 @@ export function SocialSignIn({ isSignUp = true }: SocialSignInProps) {
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-          },
-          skipBrowserRedirect: true // This prevents automatic redirect
+          }
         }
       });
 
@@ -39,12 +38,8 @@ export function SocialSignIn({ isSignUp = true }: SocialSignInProps) {
 
       console.log("Google sign in URL generated:", data.url);
       
-      // Clean up the URL by removing any query parameters
-      const cleanUrl = data.url.split('?')[0];
-      console.log("Redirecting to cleaned URL:", cleanUrl);
-      
-      // Redirect to Google's OAuth flow with clean URL
-      window.location.href = cleanUrl;
+      // Redirect to Google's OAuth flow
+      window.location.href = data.url;
       
     } catch (error: any) {
       console.error("Failed to sign in with Google:", error);
