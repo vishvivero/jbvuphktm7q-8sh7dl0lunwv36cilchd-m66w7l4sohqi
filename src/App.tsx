@@ -18,6 +18,8 @@ import FAQ from "@/pages/FAQ";
 import PrivacyPolicy from "@/components/legal/PrivacyPolicy";
 import TermsOfService from "@/components/legal/TermsOfService";
 import DataProcessingAgreement from "@/components/legal/DataProcessingAgreement";
+import CookiePolicy from "@/components/legal/CookiePolicy";
+import GDPRCompliance from "@/components/legal/GDPRCompliance";
 import Strategy from "@/pages/Strategy";
 import Track from "@/pages/Track";
 import Profile from "@/pages/Profile";
@@ -57,6 +59,8 @@ function App() {
               <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
               <Route path="/terms" element={<Layout><TermsOfService /></Layout>} />
               <Route path="/dpa" element={<Layout><DataProcessingAgreement /></Layout>} />
+              <Route path="/cookie-policy" element={<Layout><CookiePolicy /></Layout>} />
+              <Route path="/gdpr" element={<Layout><GDPRCompliance /></Layout>} />
               
               {/* Protected routes */}
               <Route path="/overview" element={<Overview />} />
