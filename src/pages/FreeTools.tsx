@@ -1,4 +1,4 @@
-import { Calculator, LineChart, PiggyBank, Percent, CreditCard, Wallet, DollarSign, Target, BankCard } from "lucide-react";
+import { Calculator, LineChart, PiggyBank, Percent, CreditCard, Wallet, DollarSign, Target, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -75,7 +75,7 @@ const FreeTools = () => {
     {
       title: "Budget Planning Calculator",
       description: "Create a personalized budget plan based on your income and expenses.",
-      icon: BankCard,
+      icon: BarChart3,
       url: "/tools/budget-calculator",
       category: "budget",
       comingSoon: true,
