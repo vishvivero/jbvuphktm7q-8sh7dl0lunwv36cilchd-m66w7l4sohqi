@@ -10,12 +10,18 @@ import { motion } from "framer-motion";
 
 export const BlogPost = () => {
   const { slug } = useParams();
+  console.log("BlogPost component mounted with slug:", slug);
 
   const { data: blog, isLoading, error } = useQuery({
     queryKey: ["blogPost", slug],
     queryFn: async () => {
       console.log("Fetching blog post with slug:", slug);
       
+      if (!slug) {
+        console.error("No slug provided");
+        return null;
+      }
+
       // First check if the blog exists at all
       const { data: blogExists, error: existsError } = await supabase
         .from("blogs")
@@ -56,6 +62,8 @@ export const BlogPost = () => {
     },
     enabled: !!slug,
   });
+
+  console.log("Current blog post state:", { isLoading, error, blogData: blog });
 
   if (error) {
     console.error("Query error:", error);

@@ -162,44 +162,51 @@ export const BlogList = () => {
           </Alert>
         ) : (
           <div className="space-y-6">
-            {blogs?.map((blog) => (
-              <Link key={blog.id} to={`/blog/post/${blog.slug}`}>
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    {blog.image_url && (
-                      <div className="aspect-[16/9] mb-4 overflow-hidden rounded-lg">
-                        <img 
-                          src={blog.image_url} 
-                          alt={blog.title}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                    )}
-                    <div className="flex flex-col gap-4">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className="bg-primary/10 text-primary">
-                          {blog.category}
-                        </Badge>
-                        <div className="flex items-center gap-1 text-sm text-gray-500">
-                          <Clock className="w-4 h-4" />
-                          <span>{blog.read_time_minutes} min read</span>
+            {blogs?.map((blog) => {
+              console.log("Rendering blog card:", blog.slug); // Add logging for debugging
+              return (
+                <Link 
+                  key={blog.id} 
+                  to={`/blog/post/${blog.slug}`}
+                  onClick={() => console.log("Blog card clicked:", blog.slug)} // Add click logging
+                >
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      {blog.image_url && (
+                        <div className="aspect-[16/9] mb-4 overflow-hidden rounded-lg">
+                          <img 
+                            src={blog.image_url} 
+                            alt={blog.title}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          />
+                        </div>
+                      )}
+                      <div className="flex flex-col gap-4">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary" className="bg-primary/10 text-primary">
+                            {blog.category}
+                          </Badge>
+                          <div className="flex items-center gap-1 text-sm text-gray-500">
+                            <Clock className="w-4 h-4" />
+                            <span>{blog.read_time_minutes} min read</span>
+                          </div>
+                        </div>
+                        <div>
+                          <h2 className="text-2xl font-bold mb-2 line-clamp-2">{blog.title}</h2>
+                          <p className="text-gray-600 line-clamp-3">{blog.excerpt}</p>
+                        </div>
+                        <div className="mt-auto pt-4 flex justify-between items-center text-sm text-gray-500">
+                          <span>By {blog.profiles?.email}</span>
+                          <span>
+                            {new Date(blog.published_at || blog.created_at).toLocaleDateString()}
+                          </span>
                         </div>
                       </div>
-                      <div>
-                        <h2 className="text-2xl font-bold mb-2 line-clamp-2">{blog.title}</h2>
-                        <p className="text-gray-600 line-clamp-3">{blog.excerpt}</p>
-                      </div>
-                      <div className="mt-auto pt-4 flex justify-between items-center text-sm text-gray-500">
-                        <span>By {blog.profiles?.email}</span>
-                        <span>
-                          {new Date(blog.published_at || blog.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
