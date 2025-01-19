@@ -25,7 +25,8 @@ const FreeTools = () => {
       title: "Loan Comparison Tool",
       description: "Compare different loan options to find the best rates and terms for you.",
       icon: PiggyBank,
-      comingSoon: true,
+      url: "/tools/loan-comparison-calculator",
+      comingSoon: false,
     },
   ];
 
