@@ -52,23 +52,69 @@ export const DebtRepaymentPlan = ({
     );
   }
 
+  // Track redistributions from paid off debts
+  const redistributionHistory = new Map<string, { fromDebtId: string; amount: number; month: number; }[]>();
+  let paidOffDebts = new Set<string>();
+  let releasedPayments = new Map<string, number>();
+
+  // Analyze timeline data to track redistributions
+  timelineData.forEach((data, monthIndex) => {
+    sortedDebts.forEach((debt, debtIndex) => {
+      const prevMonth = monthIndex > 0 ? timelineData[monthIndex - 1] : null;
+      const wasActive = prevMonth && prevMonth.acceleratedBalance > 0;
+      const isPaidOff = data.acceleratedBalance === 0;
+
+      // If debt was just paid off this month
+      if (wasActive && isPaidOff && !paidOffDebts.has(debt.id)) {
+        paidOffDebts.add(debt.id);
+        const releasedAmount = debt.minimum_payment;
+        releasedPayments.set(debt.id, releasedAmount);
+
+        // Find next unpaid debt to receive redistribution
+        const nextUnpaidDebt = sortedDebts.find((d, idx) => 
+          idx > debtIndex && !paidOffDebts.has(d.id)
+        );
+
+        if (nextUnpaidDebt) {
+          const currentRedistributions = redistributionHistory.get(nextUnpaidDebt.id) || [];
+          redistributionHistory.set(nextUnpaidDebt.id, [
+            ...currentRedistributions,
+            {
+              fromDebtId: debt.id,
+              amount: releasedAmount,
+              month: monthIndex + 1
+            }
+          ]);
+        }
+      }
+    });
+  });
+
   // Calculate payoff details from timeline data
   const payoffDetails = sortedDebts.reduce((acc, debt) => {
-    const debtTimeline = timelineData.filter(data => 
-      data.acceleratedBalance === 0 && 
-      data.baselineBalance === 0
-    );
-    const months = debtTimeline.length;
+    // Find the month where this debt is paid off in the accelerated timeline
+    const payoffMonth = timelineData.findIndex((data, index) => {
+      const prevMonth = index > 0 ? timelineData[index - 1] : null;
+      return prevMonth?.acceleratedBalance > 0 && data.acceleratedBalance === 0;
+    });
+
+    const months = payoffMonth !== -1 ? payoffMonth + 1 : timelineData.length;
     const payoffDate = new Date();
     payoffDate.setMonth(payoffDate.getMonth() + months);
 
     acc[debt.id] = {
       months,
       payoffDate,
-      totalInterest: debtTimeline[debtTimeline.length - 1]?.acceleratedInterest || 0
+      totalInterest: timelineData[months - 1]?.acceleratedInterest || 0,
+      redistributionHistory: redistributionHistory.get(debt.id) || []
     };
     return acc;
-  }, {} as { [key: string]: { months: number; payoffDate: Date; totalInterest: number } });
+  }, {} as { [key: string]: { 
+    months: number; 
+    payoffDate: Date; 
+    totalInterest: number;
+    redistributionHistory: { fromDebtId: string; amount: number; month: number; }[];
+  } });
 
   const handleDownload = () => {
     try {
