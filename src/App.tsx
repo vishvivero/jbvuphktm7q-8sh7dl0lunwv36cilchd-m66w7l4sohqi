@@ -29,6 +29,12 @@ import Reports from "@/pages/Reports";
 import AmortizationCalculatorPage from "@/pages/tools/AmortizationCalculator";
 import InterestCalculatorPage from "@/pages/tools/InterestCalculator";
 import LoanComparisonCalculatorPage from "@/pages/tools/LoanComparisonCalculator";
+import DebtToIncomeCalculatorPage from "@/pages/tools/DebtToIncomeCalculator";
+import CreditCardCalculatorPage from "@/pages/tools/CreditCardCalculator";
+import DebtConsolidationCalculatorPage from "@/pages/tools/DebtConsolidationCalculator";
+import EmergencyFundCalculatorPage from "@/pages/tools/EmergencyFundCalculator";
+import SavingsGoalCalculatorPage from "@/pages/tools/SavingsGoalCalculator";
+import BudgetCalculatorPage from "@/pages/tools/BudgetCalculator";
 import { BlogPost } from "@/components/blog/BlogPost";
 
 const queryClient = new QueryClient({
@@ -57,6 +63,12 @@ function App() {
               <Route path="/tools/amortization-calculator" element={<Layout><AmortizationCalculatorPage /></Layout>} />
               <Route path="/tools/interest-calculator" element={<Layout><InterestCalculatorPage /></Layout>} />
               <Route path="/tools/loan-comparison-calculator" element={<Layout><LoanComparisonCalculatorPage /></Layout>} />
+              <Route path="/tools/debt-to-income-calculator" element={<Layout><DebtToIncomeCalculatorPage /></Layout>} />
+              <Route path="/tools/credit-card-calculator" element={<Layout><CreditCardCalculatorPage /></Layout>} />
+              <Route path="/tools/debt-consolidation-calculator" element={<Layout><DebtConsolidationCalculatorPage /></Layout>} />
+              <Route path="/tools/emergency-fund-calculator" element={<Layout><EmergencyFundCalculatorPage /></Layout>} />
+              <Route path="/tools/savings-goal-calculator" element={<Layout><SavingsGoalCalculatorPage /></Layout>} />
+              <Route path="/tools/budget-calculator" element={<Layout><BudgetCalculatorPage /></Layout>} />
               <Route path="/faq" element={<Layout><FAQ /></Layout>} />
               <Route path="/privacy" element={<Layout><PrivacyPolicy /></Layout>} />
               <Route path="/terms" element={<Layout><TermsOfService /></Layout>} />
