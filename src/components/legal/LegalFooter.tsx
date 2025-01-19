@@ -19,6 +19,12 @@ export const LegalFooter = () => {
       <Link to="/dpa" onClick={handleLinkClick} className="hover:text-primary">
         Data Processing Agreement
       </Link>
+      <Link to="/cookie-policy" onClick={handleLinkClick} className="hover:text-primary">
+        Cookie Policy
+      </Link>
+      <Link to="/gdpr" onClick={handleLinkClick} className="hover:text-primary">
+        GDPR Compliance
+      </Link>
     </div>
   );
 };
