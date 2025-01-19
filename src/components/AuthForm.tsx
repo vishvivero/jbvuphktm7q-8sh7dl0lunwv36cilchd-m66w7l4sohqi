@@ -3,7 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { EmailForm } from "./auth/EmailForm";
-import { SocialSignIn } from "./auth/SocialSignIn";
 
 interface AuthFormProps {
   onSuccess?: () => void;
@@ -65,13 +64,11 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
         
         console.log("Sign up successful:", signUpData);
         
-        // Only attempt to send welcome email if sign up was successful
         try {
           await sendWelcomeEmail(email);
           console.log("Welcome email flow completed");
         } catch (emailError) {
           console.error("Welcome email failed but signup succeeded:", emailError);
-          // Don't throw here - we still want to show success message for signup
         }
         
         toast({
@@ -156,19 +153,6 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
               ? "Enter your details to create your account"
               : "Enter your credentials to access your account"}
           </p>
-        </div>
-
-        <SocialSignIn isSignUp={isSignUp} />
-
-        <div className="relative my-4">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Or continue with email
-            </span>
-          </div>
         </div>
 
         <EmailForm
