@@ -74,6 +74,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         console.log("Initializing auth state...");
         
+        // Check if we have a code parameter in the URL
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        if (code) {
+          console.log("OAuth code detected in URL:", code);
+        }
+        
         // Get initial session
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         
@@ -99,8 +106,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (mounted) {
               if (currentSession) {
+                console.log("New session established:", currentSession.user.id);
                 setSession(currentSession);
                 setUser(currentSession.user);
+                
+                // If we're on the callback URL, redirect to overview
+                if (window.location.pathname.includes('/overview') && window.location.search.includes('code=')) {
+                  console.log("Redirecting to clean overview URL");
+                  window.history.replaceState({}, '', '/overview');
+                }
               } else {
                 setSession(null);
                 setUser(null);
