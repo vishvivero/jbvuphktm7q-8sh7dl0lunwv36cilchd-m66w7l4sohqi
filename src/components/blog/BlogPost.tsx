@@ -15,73 +15,43 @@ export const BlogPost = () => {
   const { data: blog, isLoading, error } = useQuery({
     queryKey: ["blogPost", slug],
     queryFn: async () => {
-      console.log("Fetching blog post with slug:", slug);
+      console.log("Starting blog post fetch for slug:", slug);
       
       if (!slug) {
         console.error("No slug provided");
-        return null;
+        throw new Error("No slug provided");
       }
 
-      // First check if the blog exists at all
-      const { data: blogExists, error: existsError } = await supabase
-        .from("blogs")
-        .select("id")
-        .eq("slug", slug)
-        .maybeSingle();
-      
-      if (existsError) {
-        console.error("Error checking blog existence:", existsError);
-        throw existsError;
-      }
-
-      if (!blogExists) {
-        console.log("Blog post not found:", slug);
-        return null;
-      }
-
-      // If blog exists, fetch full details with published check
-      const { data, error } = await supabase
+      const { data: blogData, error: blogError } = await supabase
         .from("blogs")
         .select("*, profiles(email)")
         .eq("slug", slug)
         .eq("is_published", true)
         .maybeSingle();
       
-      if (error) {
-        console.error("Error fetching blog post:", error);
-        throw error;
+      if (blogError) {
+        console.error("Error fetching blog post:", blogError);
+        throw blogError;
       }
 
-      if (!data) {
-        console.log("Blog post exists but is not published:", slug);
+      if (!blogData) {
+        console.log("Blog post not found or not published:", slug);
         return null;
       }
 
-      console.log("Blog post fetched successfully:", data);
-      return data;
+      console.log("Blog post fetched successfully:", blogData);
+      return blogData;
     },
+    retry: 1,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
     enabled: !!slug,
   });
 
   console.log("Current blog post state:", { isLoading, error, blogData: blog });
 
-  if (error) {
-    console.error("Query error:", error);
-    return (
-      <div className="max-w-4xl mx-auto">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Error loading blog post. Please try again later.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto p-6">
         <Card className="animate-pulse p-6">
           <div className="h-8 bg-gray-200 rounded w-3/4 mb-4" />
           <div className="h-4 bg-gray-200 rounded w-1/4 mb-8" />
@@ -95,9 +65,23 @@ export const BlogPost = () => {
     );
   }
 
+  if (error) {
+    console.error("Query error:", error);
+    return (
+      <div className="max-w-4xl mx-auto p-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Error loading blog post: {error.message}
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   if (!blog) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto p-6">
         <Alert>
           <AlertDescription>
             Blog post not found or is not currently published.
@@ -111,9 +95,9 @@ export const BlogPost = () => {
     <motion.article 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm overflow-hidden"
+      className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm overflow-hidden p-6"
     >
-      <header className="mb-8 p-6 md:p-8 border-b">
+      <header className="mb-8 border-b pb-8">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900 leading-tight">
           {blog.title}
         </h1>
@@ -144,27 +128,25 @@ export const BlogPost = () => {
         )}
       </header>
 
-      <div className="px-6 md:px-8 pb-8">
-        <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-primary hover:prose-a:text-primary/80 prose-a:transition-colors prose-strong:text-gray-900 prose-em:text-gray-800 prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200 prose-blockquote:border-l-primary prose-blockquote:text-gray-700 prose-img:rounded-lg prose-hr:border-gray-200">
-          <ReactMarkdown>{blog.content}</ReactMarkdown>
-        </div>
-
-        {blog.tags && blog.tags.length > 0 && (
-          <div className="mt-8 pt-4 border-t">
-            <div className="flex flex-wrap gap-2">
-              {blog.tags.map((tag: string) => (
-                <Badge 
-                  key={tag} 
-                  variant="outline"
-                  className="bg-gray-50 hover:bg-gray-100 transition-colors"
-                >
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        )}
+      <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-primary hover:prose-a:text-primary/80 prose-a:transition-colors prose-strong:text-gray-900 prose-em:text-gray-800 prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200 prose-blockquote:border-l-primary prose-blockquote:text-gray-700 prose-img:rounded-lg prose-hr:border-gray-200">
+        <ReactMarkdown>{blog.content}</ReactMarkdown>
       </div>
+
+      {blog.tags && blog.tags.length > 0 && (
+        <div className="mt-8 pt-4 border-t">
+          <div className="flex flex-wrap gap-2">
+            {blog.tags.map((tag: string) => (
+              <Badge 
+                key={tag} 
+                variant="outline"
+                className="bg-gray-50 hover:bg-gray-100 transition-colors"
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      )}
     </motion.article>
   );
 };
