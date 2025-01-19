@@ -78,7 +78,6 @@ export const BlogList = () => {
           )
         `);
 
-      // Apply filters
       if (searchTerm) {
         query = query.ilike("title", `%${searchTerm}%`);
       }
@@ -87,7 +86,6 @@ export const BlogList = () => {
         query = query.eq("category", selectedCategory);
       }
 
-      // If not admin, only show published posts
       if (!profile?.is_admin) {
         query = query.eq("is_published", true);
       }
@@ -102,15 +100,16 @@ export const BlogList = () => {
       console.log("Blogs fetched:", data?.length, "posts");
       return data || [];
     },
-    enabled: true, // Always fetch blogs
+    enabled: true,
   });
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[1, 2, 3].map((i) => (
           <Card key={i} className="animate-pulse">
             <CardContent className="p-6">
+              <div className="h-48 bg-gray-200 rounded mb-4" />
               <div className="h-6 bg-gray-200 rounded w-1/4 mb-4" />
               <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
               <div className="h-4 bg-gray-200 rounded w-1/2" />
@@ -125,9 +124,9 @@ export const BlogList = () => {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl mx-auto space-y-8"
+      className="space-y-8"
     >
-      <div className="bg-white rounded-2xl p-8 shadow-sm space-y-6">
+      <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 shadow-sm space-y-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <Input
             type="text"
@@ -161,21 +160,21 @@ export const BlogList = () => {
             </AlertDescription>
           </Alert>
         ) : (
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {blogs?.map((blog) => (
               <Link key={blog.id} to={`/blog/post/${blog.slug}`}>
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
+                <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 h-full">
+                  <CardContent className="p-0">
                     {blog.image_url && (
-                      <div className="aspect-[16/9] mb-4 overflow-hidden rounded-lg">
+                      <div className="aspect-video overflow-hidden">
                         <img 
                           src={blog.image_url} 
                           alt={blog.title}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                     )}
-                    <div className="flex flex-col gap-4">
+                    <div className="p-6 space-y-4">
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary" className="bg-primary/10 text-primary">
                           {blog.category}
@@ -186,11 +185,15 @@ export const BlogList = () => {
                         </div>
                       </div>
                       <div>
-                        <h2 className="text-2xl font-bold mb-2 line-clamp-2">{blog.title}</h2>
-                        <p className="text-gray-600 line-clamp-3">{blog.excerpt}</p>
+                        <h2 className="text-xl font-bold mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                          {blog.title}
+                        </h2>
+                        <p className="text-gray-600 line-clamp-2 text-sm">
+                          {blog.excerpt}
+                        </p>
                       </div>
-                      <div className="mt-auto pt-4 flex justify-between items-center text-sm text-gray-500">
-                        <span>By {blog.profiles?.email}</span>
+                      <div className="pt-4 flex justify-between items-center text-sm text-gray-500 border-t border-gray-100">
+                        <span className="line-clamp-1">By {blog.profiles?.email}</span>
                         <span>
                           {new Date(blog.published_at || blog.created_at).toLocaleDateString()}
                         </span>
