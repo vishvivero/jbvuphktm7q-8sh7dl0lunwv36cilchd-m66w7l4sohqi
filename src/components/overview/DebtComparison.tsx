@@ -227,7 +227,7 @@ export const DebtComparison = () => {
                     <span className="text-gray-600 dark:text-gray-300 font-medium">
                       Total Debts
                       <TooltipProvider>
-                        <UITooltip>
+                        <Tooltip>
                           <TooltipTrigger>
                             <Info className="w-4 h-4 text-gray-400 ml-2" />
                           </TooltipTrigger>
@@ -237,7 +237,7 @@ export const DebtComparison = () => {
                           >
                             <p>The total number of active debts in your portfolio</p>
                           </TooltipContent>
-                        </UITooltip>
+                        </Tooltip>
                       </TooltipProvider>
                     </span>
                   </div>
