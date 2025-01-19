@@ -6,11 +6,16 @@ interface DebtOverviewChartProps {
 }
 
 export const DebtOverviewChart = ({ debts }: DebtOverviewChartProps) => {
-  const debtData = debts?.map(debt => ({
-    name: debt.name,
-    balance: Number(debt.balance),
-    interestRate: Number(debt.interest_rate),
-  })) || [];
+  // Sort debts by balance in descending order
+  const debtData = [...debts]
+    .sort((a, b) => b.balance - a.balance)
+    .map(debt => ({
+      name: debt.name,
+      balance: Number(debt.balance),
+      interestRate: Number(debt.interest_rate),
+    }));
+
+  console.log('Sorted debt data for chart:', debtData);
 
   return (
     <div className="h-[300px]">
