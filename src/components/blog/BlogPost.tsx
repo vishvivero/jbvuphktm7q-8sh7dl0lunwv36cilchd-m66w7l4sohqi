@@ -15,6 +15,25 @@ export const BlogPost = () => {
     queryKey: ["blogPost", slug],
     queryFn: async () => {
       console.log("Fetching blog post with slug:", slug);
+      
+      // First check if the blog exists at all
+      const { data: blogExists, error: existsError } = await supabase
+        .from("blogs")
+        .select("id")
+        .eq("slug", slug)
+        .maybeSingle();
+      
+      if (existsError) {
+        console.error("Error checking blog existence:", existsError);
+        throw existsError;
+      }
+
+      if (!blogExists) {
+        console.log("Blog post not found:", slug);
+        return null;
+      }
+
+      // If blog exists, fetch full details with published check
       const { data, error } = await supabase
         .from("blogs")
         .select("*, profiles(email)")
@@ -28,16 +47,18 @@ export const BlogPost = () => {
       }
 
       if (!data) {
-        console.log("Blog post not found:", slug);
+        console.log("Blog post exists but is not published:", slug);
         return null;
       }
 
+      console.log("Blog post fetched successfully:", data);
       return data;
     },
     enabled: !!slug,
   });
 
   if (error) {
+    console.error("Query error:", error);
     return (
       <div className="max-w-4xl mx-auto">
         <Alert variant="destructive">
@@ -71,7 +92,7 @@ export const BlogPost = () => {
       <div className="max-w-4xl mx-auto">
         <Alert>
           <AlertDescription>
-            Blog post not found. The post might have been removed or unpublished.
+            Blog post not found or is not currently published.
           </AlertDescription>
         </Alert>
       </div>
