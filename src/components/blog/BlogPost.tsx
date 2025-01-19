@@ -7,9 +7,11 @@ import ReactMarkdown from 'react-markdown';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { motion } from "framer-motion";
+import { useAuth } from "@/lib/auth";
 
 export const BlogPost = () => {
   const { slug } = useParams();
+  const { user } = useAuth();
   console.log("BlogPost component mounted with slug:", slug);
 
   const { data: blog, isLoading, error } = useQuery({
@@ -22,11 +24,25 @@ export const BlogPost = () => {
         throw new Error("No slug provided");
       }
 
+      // First check if user is admin
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", user?.id)
+        .maybeSingle();
+
+      console.log("User profile check:", { isAdmin: profile?.is_admin });
+
+      // Fetch blog post with author details
       const { data: blogData, error: blogError } = await supabase
         .from("blogs")
-        .select("*, profiles(email)")
+        .select(`
+          *,
+          profiles (
+            email
+          )
+        `)
         .eq("slug", slug)
-        .eq("is_published", true)
         .maybeSingle();
       
       if (blogError) {
@@ -35,8 +51,14 @@ export const BlogPost = () => {
       }
 
       if (!blogData) {
-        console.log("Blog post not found or not published:", slug);
-        return null;
+        console.log("Blog post not found:", slug);
+        throw new Error("Blog post not found");
+      }
+
+      // Check if the post is published or if the user is an admin
+      if (!blogData.is_published && !profile?.is_admin) {
+        console.log("Blog post not published and user is not admin");
+        throw new Error("Blog post not available");
       }
 
       console.log("Blog post fetched successfully:", blogData);
@@ -72,7 +94,7 @@ export const BlogPost = () => {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Error loading blog post: {error.message}
+            {error instanceof Error ? error.message : "Error loading blog post"}
           </AlertDescription>
         </Alert>
       </div>

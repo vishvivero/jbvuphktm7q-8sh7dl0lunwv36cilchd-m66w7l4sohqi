@@ -30,7 +30,7 @@ export const BlogList = () => {
       
       if (error) {
         console.error("Error fetching profile:", error);
-        return null;
+        throw error;
       }
       
       console.log("Profile data:", data);
@@ -51,7 +51,7 @@ export const BlogList = () => {
       
       if (error) {
         console.error("Error fetching categories:", error);
-        return [];
+        throw error;
       }
       
       console.log("Categories fetched:", data);
@@ -60,7 +60,7 @@ export const BlogList = () => {
   });
 
   // Third query: Get blogs with filters
-  const { data: blogs = [], isLoading } = useQuery({
+  const { data: blogs = [], isLoading, error } = useQuery({
     queryKey: ["blogs", searchTerm, selectedCategory, profile?.is_admin],
     queryFn: async () => {
       console.log("Fetching blogs with filters:", {
@@ -96,13 +96,14 @@ export const BlogList = () => {
       
       if (error) {
         console.error("Error fetching blogs:", error);
-        return [];
+        throw error;
       }
 
       console.log("Blogs fetched:", data?.length, "posts");
       return data || [];
     },
     enabled: true,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
   if (isLoading) {
@@ -118,6 +119,16 @@ export const BlogList = () => {
           </Card>
         ))}
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertDescription>
+          Error loading blog posts: {error instanceof Error ? error.message : "Unknown error"}
+        </AlertDescription>
+      </Alert>
     );
   }
 
@@ -171,7 +182,7 @@ export const BlogList = () => {
                   onClick={() => {
                     console.log("Blog card clicked:", blog.slug);
                   }}
-                  className="block" // Add this to ensure the link takes full width
+                  className="block"
                 >
                   <Card className="hover:shadow-md transition-shadow">
                     <CardContent className="p-6">
