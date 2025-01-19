@@ -38,7 +38,6 @@ const FreeTools = () => {
       icon: Percent,
       url: "/tools/debt-to-income-calculator",
       category: "debt",
-      comingSoon: true,
     },
     {
       title: "Credit Card Payoff Calculator",
@@ -46,7 +45,6 @@ const FreeTools = () => {
       icon: CreditCard,
       url: "/tools/credit-card-calculator",
       category: "credit",
-      comingSoon: true,
     },
     {
       title: "Debt Consolidation Calculator",
@@ -54,7 +52,6 @@ const FreeTools = () => {
       icon: Wallet,
       url: "/tools/debt-consolidation-calculator",
       category: "debt",
-      comingSoon: true,
     },
     {
       title: "Emergency Fund Calculator",
@@ -62,7 +59,6 @@ const FreeTools = () => {
       icon: DollarSign,
       url: "/tools/emergency-fund-calculator",
       category: "savings",
-      comingSoon: true,
     },
     {
       title: "Savings Goal Calculator",
@@ -70,7 +66,6 @@ const FreeTools = () => {
       icon: Target,
       url: "/tools/savings-goal-calculator",
       category: "savings",
-      comingSoon: true,
     },
     {
       title: "Budget Planning Calculator",
@@ -78,7 +73,6 @@ const FreeTools = () => {
       icon: BarChart3,
       url: "/tools/budget-calculator",
       category: "budget",
-      comingSoon: true,
     },
   ];
 
@@ -143,15 +137,9 @@ const FreeTools = () => {
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{tool.title}</h3>
                   <p className="text-gray-600 mb-4">{tool.description}</p>
                   <div className="flex items-center justify-between">
-                    {tool.comingSoon ? (
-                      <span className="inline-block px-3 py-1 text-sm bg-gray-100 text-gray-600 rounded-full">
-                        Coming Soon
-                      </span>
-                    ) : (
-                      <Button asChild>
-                        <Link to={tool.url}>Try Now</Link>
-                      </Button>
-                    )}
+                    <Button asChild>
+                      <Link to={tool.url}>Try Now</Link>
+                    </Button>
                     <span className="text-sm text-gray-500 capitalize">{tool.category}</span>
                   </div>
                 </motion.div>
