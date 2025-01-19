@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Target, TrendingUp, Award, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Target, TrendingUp, Award, AlertCircle, CheckCircle2, Coins, Clock, Zap } from "lucide-react";
 import { useDebts } from "@/hooks/use-debts";
 import { calculateDebtScore, getScoreCategory } from "@/lib/utils/scoring/debtScoreCalculator";
 import { unifiedDebtCalculationService } from "@/lib/services/UnifiedDebtCalculationService";
@@ -40,32 +40,80 @@ export const ScoreInsightsSection = () => {
 
   const scoreCategory = getScoreCategory(scoreDetails.totalScore);
 
-  const getRecommendation = () => {
+  const getDetailedRecommendations = () => {
+    const recommendations = [];
+    const totalMinPayments = debts.reduce((sum, debt) => sum + debt.minimum_payment, 0);
+    const highestInterestDebt = [...debts].sort((a, b) => b.interest_rate - a.interest_rate)[0];
+    const lowestBalanceDebt = [...debts].sort((a, b) => a.balance - b.balance)[0];
+
+    // Interest Score Recommendations
     if (scoreDetails.interestScore < 25) {
-      return "Consider increasing your monthly payment to reduce interest costs.";
-    } else if (scoreDetails.durationScore < 15) {
-      return "You could pay off your debt faster by optimizing your payment strategy.";
-    } else if (scoreDetails.behaviorScore.ontimePayments < 5) {
-      return "Set up automatic payments to maintain consistency.";
+      recommendations.push({
+        text: `Focus on paying off your ${highestInterestDebt.name} first with ${highestInterestDebt.interest_rate}% interest rate to reduce overall interest costs.`,
+        icon: <Coins className="h-5 w-5 text-yellow-500" />,
+        priority: 1
+      });
     }
-    return "Keep up the great work! Your debt management strategy is solid.";
+
+    // Duration Score Recommendations
+    if (scoreDetails.durationScore < 15) {
+      const extraPaymentNeeded = Math.ceil((totalMinPayments * 0.2) / 10) * 10; // Round to nearest 10
+      recommendations.push({
+        text: `Consider increasing your monthly payment by ${profile.preferred_currency}${extraPaymentNeeded} to significantly reduce your payoff timeline.`,
+        icon: <Clock className="h-5 w-5 text-blue-500" />,
+        priority: 2
+      });
+    }
+
+    // Payment Behavior Recommendations
+    if (scoreDetails.behaviorScore.ontimePayments < 5) {
+      recommendations.push({
+        text: "Set up automatic payments to ensure consistent, on-time payments and improve your payment behavior score.",
+        icon: <Zap className="h-5 w-5 text-purple-500" />,
+        priority: 3
+      });
+    }
+
+    // Strategy Optimization
+    if (scoreDetails.behaviorScore.strategyUsage < 5) {
+      const suggestedStrategy = highestInterestDebt.interest_rate > 15 ? "avalanche" : "snowball";
+      if (suggestedStrategy !== selectedStrategy.id) {
+        recommendations.push({
+          text: `Switch to the ${suggestedStrategy} method to optimize your debt payoff strategy based on your current debt profile.`,
+          icon: <TrendingUp className="h-5 w-5 text-emerald-500" />,
+          priority: 4
+        });
+      }
+    }
+
+    // Extra Payment Recommendations
+    if (scoreDetails.behaviorScore.excessPayments < 2.5) {
+      const smallestExtra = Math.ceil((lowestBalanceDebt.minimum_payment * 0.1) / 5) * 5; // Round to nearest 5
+      recommendations.push({
+        text: `Start small: add just ${profile.preferred_currency}${smallestExtra} extra to your monthly payment to build momentum.`,
+        icon: <Target className="h-5 w-5 text-indigo-500" />,
+        priority: 5
+      });
+    }
+
+    // If score is good, provide maintenance advice
+    if (scoreDetails.totalScore >= 80) {
+      recommendations.push({
+        text: "Your debt management strategy is solid! Consider setting up an emergency fund to prevent future debt.",
+        icon: <CheckCircle2 className="h-5 w-5 text-emerald-500" />,
+        priority: 6
+      });
+    }
+
+    // Sort by priority and return the most relevant recommendation
+    return recommendations.sort((a, b) => a.priority - b.priority)[0];
   };
 
-  const getRecommendationIcon = (score: number) => {
-    if (score < 50) {
-      return <AlertCircle className="h-5 w-5 text-destructive" />;
-    } else if (score < 75) {
-      return <TrendingUp className="h-5 w-5 text-secondary" />;
-    }
-    return <CheckCircle2 className="h-5 w-5 text-primary" />;
-  };
+  const recommendation = getDetailedRecommendations();
 
   const getRecommendationStyle = (score: number) => {
-    if (score < 50) {
-      return "bg-destructive/5 border-destructive/10";
-    } else if (score < 75) {
-      return "bg-secondary/5 border-secondary/10";
-    }
+    if (score < 50) return "bg-destructive/5 border-destructive/10";
+    if (score < 75) return "bg-secondary/5 border-secondary/10";
     return "bg-primary/5 border-primary/10";
   };
 
@@ -160,14 +208,14 @@ export const ScoreInsightsSection = () => {
 
           <div className={`mt-6 p-4 rounded-lg border transition-all duration-300 ${getRecommendationStyle(scoreDetails.totalScore)}`}>
             <div className="flex items-start gap-3">
-              {getRecommendationIcon(scoreDetails.totalScore)}
+              {recommendation.icon}
               <div className="space-y-2">
-                <h4 className="font-medium text-gray-900">Personalized Recommendation</h4>
-                <p className="text-sm text-gray-600">{getRecommendation()}</p>
+                <h4 className="font-medium text-gray-900">Personalized Action Step</h4>
+                <p className="text-sm text-gray-600">{recommendation.text}</p>
                 <div className="flex items-center gap-2 mt-3">
                   <Award className="h-4 w-4 text-primary" />
                   <span className="text-xs text-gray-500">
-                    Based on your current debt management strategy and payment patterns
+                    Based on your current debt profile and payment patterns
                   </span>
                 </div>
               </div>
