@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Target, TrendingUp, Award } from "lucide-react";
+import { Target, TrendingUp, Award, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useDebts } from "@/hooks/use-debts";
 import { calculateDebtScore, getScoreCategory } from "@/lib/utils/scoring/debtScoreCalculator";
 import { unifiedDebtCalculationService } from "@/lib/services/UnifiedDebtCalculationService";
@@ -49,6 +49,24 @@ export const ScoreInsightsSection = () => {
       return "Set up automatic payments to maintain consistency.";
     }
     return "Keep up the great work! Your debt management strategy is solid.";
+  };
+
+  const getRecommendationIcon = (score: number) => {
+    if (score < 50) {
+      return <AlertCircle className="h-5 w-5 text-destructive" />;
+    } else if (score < 75) {
+      return <TrendingUp className="h-5 w-5 text-secondary" />;
+    }
+    return <CheckCircle2 className="h-5 w-5 text-primary" />;
+  };
+
+  const getRecommendationStyle = (score: number) => {
+    if (score < 50) {
+      return "bg-destructive/5 border-destructive/10";
+    } else if (score < 75) {
+      return "bg-secondary/5 border-secondary/10";
+    }
+    return "bg-primary/5 border-primary/10";
   };
 
   return (
@@ -140,12 +158,18 @@ export const ScoreInsightsSection = () => {
             </div>
           </div>
 
-          <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/10">
+          <div className={`mt-6 p-4 rounded-lg border transition-all duration-300 ${getRecommendationStyle(scoreDetails.totalScore)}`}>
             <div className="flex items-start gap-3">
-              <TrendingUp className="h-5 w-5 text-primary mt-0.5" />
-              <div>
-                <h4 className="font-medium text-gray-900">Recommendation</h4>
-                <p className="text-sm text-gray-600 mt-1">{getRecommendation()}</p>
+              {getRecommendationIcon(scoreDetails.totalScore)}
+              <div className="space-y-2">
+                <h4 className="font-medium text-gray-900">Personalized Recommendation</h4>
+                <p className="text-sm text-gray-600">{getRecommendation()}</p>
+                <div className="flex items-center gap-2 mt-3">
+                  <Award className="h-4 w-4 text-primary" />
+                  <span className="text-xs text-gray-500">
+                    Based on your current debt management strategy and payment patterns
+                  </span>
+                </div>
               </div>
             </div>
           </div>
