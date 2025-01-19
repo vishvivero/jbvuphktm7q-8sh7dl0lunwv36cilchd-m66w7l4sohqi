@@ -22,8 +22,7 @@ export function SocialSignIn({ isSignUp = true }: SocialSignInProps) {
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-          },
-          skipBrowserRedirect: true
+          }
         }
       });
 
@@ -38,18 +37,7 @@ export function SocialSignIn({ isSignUp = true }: SocialSignInProps) {
       }
 
       console.log("Google sign in URL generated:", data.url);
-      
-      // Extract the base URL without query parameters
-      const baseUrl = window.location.origin + '/overview';
-      console.log("Base redirect URL:", baseUrl);
-      
-      // Construct the OAuth URL with the correct redirect
-      const oauthUrl = new URL(data.url);
-      oauthUrl.searchParams.set('redirect_to', baseUrl);
-      console.log("Final OAuth URL:", oauthUrl.toString());
-      
-      // Redirect to Google's OAuth flow
-      window.location.href = oauthUrl.toString();
+      window.location.href = data.url;
       
     } catch (error: any) {
       console.error("Failed to sign in with Google:", error);
