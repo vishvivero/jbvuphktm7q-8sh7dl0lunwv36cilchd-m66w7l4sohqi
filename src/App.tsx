@@ -54,7 +54,7 @@ function App() {
         <SidebarProvider>
           <BrowserRouter>
             <Routes>
-              {/* Public routes - All wrapped in Layout */}
+              {/* Public routes */}
               <Route path="/" element={<Layout><Index /></Layout>} />
               <Route path="/about" element={<Layout><About /></Layout>} />
               <Route path="/contact" element={<Layout><Contact /></Layout>} />

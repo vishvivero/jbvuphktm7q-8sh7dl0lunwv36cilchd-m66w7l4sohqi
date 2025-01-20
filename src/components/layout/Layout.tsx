@@ -1,83 +1,61 @@
-import { ReactNode } from "react";
-import { Link } from "react-router-dom";
-import { LegalFooter } from "@/components/legal/LegalFooter";
-import { CookieConsent } from "@/components/legal/CookieConsent";
+import Header from "@/components/Header";
+import { useTrackVisit } from "@/hooks/use-track-visit";
+import { Button } from "@/components/ui/button";
+import { Link, useLocation } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { useEffect } from "react";
 
 interface LayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
-const Layout = ({ children }: LayoutProps) => {
-  return (
-    <div className="flex flex-col min-h-screen">
-      <main className="flex-1">
-        {children}
-      </main>
+export default function Layout({ children }: LayoutProps) {
+  useTrackVisit();
+  const location = useLocation();
+  const isBlogPost = location.pathname.startsWith('/blog/post/');
+  const isToolPage = location.pathname.startsWith('/tools/') && location.pathname !== '/tools';
+  
+  const backButtonText = isBlogPost 
+    ? "Back to Blog List" 
+    : isToolPage 
+      ? "Back to Tools" 
+      : "Back to Home";
       
-      <footer className="bg-gray-50 py-12 border-t border-gray-100">
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <Link to="/" className="text-xl font-bold text-gray-900 hover:text-primary transition-colors">
-                Debtfreeo
-              </Link>
-              <p className="text-gray-600">
-                Your journey to financial freedom starts here.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Product</h4>
-              <ul className="space-y-2 text-gray-600">
-                <li>
-                  <Link to="/tools" className="hover:text-primary transition-colors">
-                    Free Tools
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/blog" className="hover:text-primary transition-colors">
-                    Blog
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/faq" className="hover:text-primary transition-colors">
-                    FAQ
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/pricing" className="hover:text-primary transition-colors">
-                    Pricing
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-600">
-                <li>
-                  <Link to="/about" className="hover:text-primary transition-colors">
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/contact" className="hover:text-primary transition-colors">
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Legal</h4>
-              <LegalFooter />
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-gray-200 text-center text-gray-600">
-            <p>&copy; 2025 Debtfreeo. All rights reserved.</p>
-          </div>
+  const backButtonLink = isBlogPost 
+    ? "/blog" 
+    : isToolPage 
+      ? "/tools" 
+      : "/";
+
+  // Scroll to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  // Handle link clicks to scroll to top
+  const handleLinkClick = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen w-full">
+      <Header />
+      <main className="flex-1 flex flex-col w-full pt-16">
+        <div className="flex-1 flex flex-col w-full relative">
+          {location.pathname !== "/" && (
+            <Link to={backButtonLink} onClick={handleLinkClick}>
+              <Button variant="outline" size="sm" className="absolute top-4 left-4 z-10">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                {backButtonText}
+              </Button>
+            </Link>
+          )}
+          {children}
         </div>
-      </footer>
-      <CookieConsent />
+      </main>
     </div>
   );
-};
-
-export default Layout;
+}
