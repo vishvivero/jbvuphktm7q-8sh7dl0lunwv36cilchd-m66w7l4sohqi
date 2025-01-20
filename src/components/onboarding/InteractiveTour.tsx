@@ -73,7 +73,7 @@ export const InteractiveTour = () => {
     
     console.log('Tour callback:', { status, action, index, type });
 
-    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status as typeof STATUS.FINISHED | typeof STATUS.SKIPPED)) {
       // Mark tour as completed in the database
       if (profile) {
         try {

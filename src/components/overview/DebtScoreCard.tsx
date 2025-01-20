@@ -19,6 +19,7 @@ import { NoDebtsMessage } from "@/components/debt/NoDebtsMessage";
 
 export const DebtScoreCard = () => {
   const { debts, profile } = useDebts();
+  const navigate = useNavigate();
   
   console.log('Rendering DebtScoreCard with debts:', {
     debtCount: debts?.length,
