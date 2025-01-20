@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useProfile } from "@/hooks/use-profile";
+import { addDays, format } from "date-fns";
 
 interface OneTimeFundingDialogProps {
   isOpen: boolean;
@@ -14,7 +15,8 @@ interface OneTimeFundingDialogProps {
 }
 
 export const OneTimeFundingDialog = ({ isOpen, onClose }: OneTimeFundingDialogProps) => {
-  const [date, setDate] = useState<Date>(new Date());
+  const tomorrow = addDays(new Date(), 1);
+  const [date, setDate] = useState<Date>(tomorrow);
   const [amount, setAmount] = useState("");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +50,7 @@ export const OneTimeFundingDialog = ({ isOpen, onClose }: OneTimeFundingDialogPr
       });
       onClose();
       setAmount("");
-      setDate(new Date());
+      setDate(tomorrow);
       setNotes("");
     } catch (error) {
       console.error('Error adding one-time funding:', error);
@@ -61,6 +63,9 @@ export const OneTimeFundingDialog = ({ isOpen, onClose }: OneTimeFundingDialogPr
       setIsSubmitting(false);
     }
   };
+
+  // Get minimum date string in YYYY-MM-DD format for the date input
+  const minDateString = format(tomorrow, 'yyyy-MM-dd');
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -88,7 +93,8 @@ export const OneTimeFundingDialog = ({ isOpen, onClose }: OneTimeFundingDialogPr
             <Input
               id="date"
               type="date"
-              value={date.toISOString().split('T')[0]}
+              value={format(date, 'yyyy-MM-dd')}
+              min={minDateString}
               onChange={(e) => setDate(new Date(e.target.value))}
               required
             />
