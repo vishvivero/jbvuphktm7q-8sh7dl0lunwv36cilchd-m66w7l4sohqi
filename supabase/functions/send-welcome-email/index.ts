@@ -59,11 +59,15 @@ const handler = async (req: Request): Promise<Response> => {
               If you have any questions or need assistance, don't hesitate to reach out to our support team.
             </p>
 
-            <div style="text-align: center; margin-top: 30px;">
-              <a href="${Deno.env.get('SUPABASE_URL')}" 
-                 style="background-color: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            <div style="text-align: center; margin: 40px 0;">
+              <a href="https://debtfreeo.com/overview" 
+                 style="background-color: #34D399; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
                 Go to Dashboard
               </a>
+            </div>
+
+            <div style="margin-top: 40px; text-align: center; color: #666; font-size: 14px;">
+              <p>© 2024 Debtfreeo. All rights reserved.</p>
             </div>
           </div>
         `,

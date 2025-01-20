@@ -74,6 +74,21 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
         
         console.log("Sign up successful:", signUpData);
         
+        // Update profile flags directly after signup
+        if (signUpData.user) {
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({
+              has_accepted_policies: policyAgreed,
+              has_marketing_consent: marketingConsent
+            })
+            .eq('id', signUpData.user.id);
+
+          if (updateError) {
+            console.error("Error updating profile flags:", updateError);
+          }
+        }
+        
         try {
           await sendWelcomeEmail(email);
           console.log("Welcome email flow completed");
@@ -195,4 +210,4 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
       </motion.div>
     </div>
   );
-}
+};
