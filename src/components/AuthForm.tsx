@@ -15,6 +15,8 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [policyAgreed, setPolicyAgreed] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const { toast } = useToast();
 
   const sendWelcomeEmail = async (email: string) => {
@@ -47,6 +49,10 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
         if (password !== confirmPassword) {
           throw new Error("Passwords do not match");
         }
+
+        if (!policyAgreed) {
+          throw new Error("You must agree to the Terms of Service and Privacy Policy");
+        }
         
         console.log("Attempting to sign up user with email:", email);
         const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
@@ -54,6 +60,10 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/overview`,
+            data: {
+              has_accepted_policies: policyAgreed,
+              has_marketing_consent: marketingConsent
+            }
           }
         });
         
@@ -166,6 +176,10 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
           setConfirmPassword={setConfirmPassword}
           onForgotPassword={handleForgotPassword}
           onSubmit={handleSubmit}
+          policyAgreed={policyAgreed}
+          setPolicyAgreed={setPolicyAgreed}
+          marketingConsent={marketingConsent}
+          setMarketingConsent={setMarketingConsent}
         />
 
         <p className="text-center text-sm text-muted-foreground">

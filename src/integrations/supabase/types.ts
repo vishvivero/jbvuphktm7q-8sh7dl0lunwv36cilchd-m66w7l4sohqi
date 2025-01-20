@@ -282,7 +282,9 @@ export type Database = {
         Row: {
           created_at: string
           email: string | null
+          has_accepted_policies: boolean | null
           has_completed_tour: boolean | null
+          has_marketing_consent: boolean | null
           id: string
           is_admin: boolean | null
           monthly_payment: number | null
@@ -298,7 +300,9 @@ export type Database = {
         Insert: {
           created_at?: string
           email?: string | null
+          has_accepted_policies?: boolean | null
           has_completed_tour?: boolean | null
+          has_marketing_consent?: boolean | null
           id: string
           is_admin?: boolean | null
           monthly_payment?: number | null
@@ -314,7 +318,9 @@ export type Database = {
         Update: {
           created_at?: string
           email?: string | null
+          has_accepted_policies?: boolean | null
           has_completed_tour?: boolean | null
+          has_marketing_consent?: boolean | null
           id?: string
           is_admin?: boolean | null
           monthly_payment?: number | null
