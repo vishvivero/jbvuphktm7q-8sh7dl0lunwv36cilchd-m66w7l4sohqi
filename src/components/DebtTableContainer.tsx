@@ -11,7 +11,6 @@ import { Button } from "./ui/button";
 import { FileDown } from "lucide-react";
 import { generateDebtOverviewPDF } from "@/lib/utils/pdfGenerator";
 import { useToast } from "./ui/use-toast";
-import { countryCurrencies } from "@/lib/utils/currency-data";
 
 interface DebtTableContainerProps {
   debts: Debt[];
@@ -23,7 +22,7 @@ interface DebtTableContainerProps {
 }
 
 export const DebtTableContainer = ({
-  debts,
+  debts = [], // Provide empty array as default
   monthlyPayment = 0,
   onUpdateDebt,
   onDeleteDebt,
@@ -120,7 +119,8 @@ export const DebtTableContainer = ({
   console.log('DebtTableContainer: Calculating payoff with strategy:', selectedStrategy);
   const strategy = strategies.find(s => s.id === selectedStrategy) || strategies[0];
   
-  const sortedDebts = strategy.calculate([...debts]);
+  // Only sort debts if they exist
+  const sortedDebts = debts.length > 0 ? strategy.calculate([...debts]) : [];
   console.log('DebtTableContainer: Debts sorted according to strategy:', strategy.name);
   
   // Convert Date objects to ISO strings before passing to calculatePayoffDetails
@@ -134,6 +134,15 @@ export const DebtTableContainer = ({
 
   const handleDownloadPDF = () => {
     try {
+      if (sortedDebts.length === 0) {
+        toast({
+          title: "No debts to export",
+          description: "Add some debts before generating a report",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Calculate monthly allocations for each debt
       const allocations = new Map<string, number>();
       const totalMinimumPayments = sortedDebts.reduce((sum, debt) => sum + debt.minimum_payment, 0);
