@@ -1,104 +1,110 @@
 import { useEffect, useState } from "react";
-import Joyride, { CallBackProps, EVENTS, STATUS, Step } from "react-joyride";
+import Joyride, { CallBackProps, Step, STATUS } from "react-joyride";
 import { useDebts } from "@/hooks/use-debts";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { useProfile } from "@/hooks/use-profile";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 export const InteractiveTour = () => {
+  const [steps, setSteps] = useState<Step[]>([]);
   const [run, setRun] = useState(false);
-  const [stepIndex, setStepIndex] = useState(0);
   const { debts, profile } = useDebts();
-  const { updateProfile } = useProfile();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    // Only start the tour if user hasn't completed it and is logged in
-    if (profile && !profile.has_completed_tour) {
-      console.log("Starting guided tour for new user");
+    // Only start the tour for new users who haven't completed it
+    if (profile && profile.has_completed_tour === false) {
+      const hasDebts = debts && debts.length > 0;
+      
+      const tourSteps = hasDebts ? getMainTourSteps() : getInitialTourSteps();
+      setSteps(tourSteps);
       setRun(true);
     }
-  }, [profile]);
+  }, [profile, debts]);
 
-  const steps: Step[] = [
+  const getInitialTourSteps = (): Step[] => [
     {
-      target: ".add-first-debt-btn",
-      content: "Let's get started! Click here to add your first debt and take the first step toward debt freedom.",
+      target: '[data-tour="add-first-debt"]',
+      content: "Let's start by adding your first debt. Click here to begin your journey to financial freedom!",
+      disableBeacon: true,
       placement: "left",
+    }
+  ];
+
+  const getMainTourSteps = (): Step[] => [
+    {
+      target: '[data-tour="debt-score"]',
+      content: "This is your Debt Score. It shows how well you're managing your debts and where you can improve.",
       disableBeacon: true,
     },
     {
-      target: ".debt-score-section",
-      content: "This is your current debt score—a quick overview of your financial health based on the debts you've added.",
-      placement: "bottom",
+      target: '[data-tour="debt-status"]',
+      content: "Here's your current debt situation. This section shows how your debts look right now without any optimizations.",
     },
     {
-      target: ".debt-status-section",
-      content: "Here's your current debt status. This gives you a snapshot of your debts and helps you track your progress.",
-      placement: "bottom",
+      target: '[data-tour="potential-savings"]',
+      content: "See what Debtfreeo can save you! This shows your potential savings even before making any extra payments.",
     },
     {
-      target: ".potential-savings-section",
-      content: "These are your initial potential savings without any extra payments. Let's explore how you can save even more!",
-      placement: "bottom",
+      target: '[data-tour="optimize-button"]',
+      content: "Click here to start optimizing your debt repayment plan and save more on interest!",
     },
     {
-      target: ".optimize-debt-btn",
-      content: "Click here to create your personalized debt repayment plan and reduce interest costs further.",
-      placement: "bottom",
+      target: '[data-tour="extra-payment"]',
+      content: "Make extra monthly payments here to pay off your debts faster.",
     },
     {
-      target: ".extra-payments-section",
-      content: "Making extra monthly payments is a great way to pay off your debts faster. Adjust this to see how it impacts your timeline.",
-      placement: "left",
+      target: '[data-tour="one-time-funding"]',
+      content: "Plan upcoming extra payments like bonuses or any excess money to accelerate your debt payoff.",
     },
     {
-      target: ".one-time-funding-section",
-      content: "Have a bonus or extra money? Plan to add one-time payments here to accelerate your progress even more.",
-      placement: "right",
+      target: '[data-tour="payoff-timeline"]',
+      content: "This graph shows your original vs accelerated debt payoff timeline. Watch how extra payments can speed up your journey!",
     },
     {
-      target: ".timeline-graph-section",
-      content: "This graph shows your original timeline versus the accelerated timeline with your optimizations. Track your journey to debt freedom!",
-      placement: "top",
-    },
-    {
-      target: ".debts-nav-link",
-      content: "Need to add more debts? Click here to add and manage additional debts anytime.",
-      placement: "right",
-    },
+      target: '[data-tour="add-more-debts"]',
+      content: "Don't forget to add all your debts to get the most accurate recommendations and savings calculations.",
+    }
   ];
 
   const handleJoyrideCallback = async (data: CallBackProps) => {
-    const { action, index, status, type } = data;
-    console.log("Tour callback:", { action, index, status, type });
+    const { status, action, index, type } = data;
+    
+    console.log('Tour callback:', { status, action, index, type });
 
-    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
-      setRun(false);
-      
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status as typeof STATUS.FINISHED | typeof STATUS.SKIPPED)) {
       // Mark tour as completed in the database
       if (profile) {
         try {
-          await updateProfile.mutateAsync({
-            ...profile,
-            has_completed_tour: true
-          });
-          console.log("Tour completion status updated in database");
+          const { error } = await supabase
+            .from('profiles')
+            .update({ has_completed_tour: true })
+            .eq('id', profile.id);
+
+          if (error) throw error;
+
+          // If user hasn't added any debts yet, show the add debt dialog
+          if (!debts || debts.length === 0) {
+            toast({
+              title: "Let's add your first debt",
+              description: "Start by adding your debts to see how we can help you become debt-free faster.",
+            });
+          } else if (status === STATUS.FINISHED) {
+            // Navigate to strategy page if tour completed normally
+            navigate("/strategy");
+          }
         } catch (error) {
-          console.error("Error updating tour completion status:", error);
-          toast({
-            title: "Error",
-            description: "Failed to update tour status",
-            variant: "destructive",
-          });
+          console.error('Error updating tour status:', error);
         }
       }
+      setRun(false);
     }
 
-    // Handle navigation between pages if needed
-    if (type === EVENTS.STEP_AFTER && index === 4) {
-      navigate("/strategy");
+    // If user completes initial step (adding first debt)
+    if (index === 0 && type === "step:after" && debts && debts.length > 0) {
+      // Update steps to show the main tour
+      setSteps(getMainTourSteps());
     }
   };
 
@@ -107,13 +113,12 @@ export const InteractiveTour = () => {
       callback={handleJoyrideCallback}
       continuous
       hideCloseButton
-      hideBackButton={false}
+      hideBackButton={debts && debts.length === 0}
       run={run}
       scrollToFirstStep
       showProgress
       showSkipButton
       steps={steps}
-      stepIndex={stepIndex}
       styles={{
         options: {
           primaryColor: "#10B981",
