@@ -67,7 +67,7 @@ const handler = async (req: Request): Promise<Response> => {
             </div>
 
             <div style="margin-top: 40px; text-align: center; color: #666; font-size: 14px;">
-              <p>© 2024 Debtfreeo. All rights reserved.</p>
+              <p>© 2025 Debtfreeo. All rights reserved.</p>
             </div>
           </div>
         `,
