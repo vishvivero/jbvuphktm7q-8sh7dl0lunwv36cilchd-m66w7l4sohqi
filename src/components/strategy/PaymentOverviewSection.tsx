@@ -38,7 +38,7 @@ export const PaymentOverviewSection = ({
           Track and manage your monthly debt payments
         </p>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4" data-tour="extra-payment">
         <div className="space-y-2">
           <div className="flex justify-between items-center flex-wrap gap-2">
             <span className="text-sm text-gray-600">Minimum Payments</span>
