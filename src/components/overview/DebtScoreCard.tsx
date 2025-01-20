@@ -1,9 +1,6 @@
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -19,7 +16,6 @@ import { NoDebtsMessage } from "@/components/debt/NoDebtsMessage";
 
 export const DebtScoreCard = () => {
   const { debts, profile } = useDebts();
-  const navigate = useNavigate();
   
   console.log('Rendering DebtScoreCard with debts:', {
     debtCount: debts?.length,
@@ -185,29 +181,22 @@ export const DebtScoreCard = () => {
 
     return (
       <>
-        <div className="flex flex-col md:flex-row items-center gap-8" data-tour="debt-score">
-          {renderCircularProgress()}
+        <div className="flex flex-col md:flex-row items-center gap-8">
+          <div className="flex-shrink-0">
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-8 shadow-sm border border-gray-100">
+              <div className="text-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-700">YOUR DEBT SCORE</h3>
+              </div>
+              {renderCircularProgress()}
+            </div>
+          </div>
+          <div className="flex-grow">
+            {renderScoreBreakdown()}
+          </div>
         </div>
 
         <div className="mt-8 pt-8 border-t border-gray-100">
-          <div data-tour="debt-status">
-            {/* How Does Your Debt Look Now section */}
-          </div>
-          
-          <div data-tour="potential-savings">
-            {/* What Debtfreeo Can Save You section */}
-          </div>
-          
-          <div className="flex justify-center">
-            <Button
-              onClick={() => navigate("/strategy")}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2 rounded-full flex items-center gap-2 transition-all duration-300 shadow-lg hover:shadow-xl"
-              data-tour="optimize-button"
-            >
-              Start Optimizing Your Debt Now
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </div>
+          <DebtComparison />
         </div>
       </>
     );

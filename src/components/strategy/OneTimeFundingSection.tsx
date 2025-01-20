@@ -108,7 +108,7 @@ export const OneTimeFundingSection = () => {
   return (
     <Card className="bg-white/95">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between" data-tour="one-time-funding">
+        <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <PlusCircle className="h-5 w-5 text-primary" />
             One-time Funding
