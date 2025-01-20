@@ -144,7 +144,7 @@ const Index = () => {
               </div>
             </div>
             <div className="mt-8 pt-8 border-t border-gray-200 text-center text-gray-600">
-              <p>&copy; 2024 Debtfreeo. All rights reserved.</p>
+              <p>&copy; 2025 Debtfreeo. All rights reserved.</p>
             </div>
           </div>
         </footer>
