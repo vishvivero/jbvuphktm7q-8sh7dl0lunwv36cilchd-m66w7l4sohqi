@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import Joyride, { CallBackProps, Status, Step } from "react-joyride";
+import Joyride, { CallBackProps, Step, STATUS } from "react-joyride";
 import { useDebts } from "@/hooks/use-debts";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 export const InteractiveTour = () => {
@@ -14,7 +14,7 @@ export const InteractiveTour = () => {
 
   useEffect(() => {
     // Only start the tour for new users who haven't completed it
-    if (profile && !profile.has_completed_tour) {
+    if (profile && profile.has_completed_tour === false) {
       const hasDebts = debts && debts.length > 0;
       
       const tourSteps = hasDebts ? getMainTourSteps() : getInitialTourSteps();
@@ -73,7 +73,7 @@ export const InteractiveTour = () => {
     
     console.log('Tour callback:', { status, action, index, type });
 
-    if (([Status.FINISHED, Status.SKIPPED] as string[]).includes(status)) {
+    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
       // Mark tour as completed in the database
       if (profile) {
         try {
@@ -90,7 +90,7 @@ export const InteractiveTour = () => {
               title: "Let's add your first debt",
               description: "Start by adding your debts to see how we can help you become debt-free faster.",
             });
-          } else if (status === Status.FINISHED) {
+          } else if (status === STATUS.FINISHED) {
             // Navigate to strategy page if tour completed normally
             navigate("/strategy");
           }
