@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { motion } from "framer-motion";
 import { EmailForm } from "./auth/EmailForm";
+import { useNavigate } from "react-router-dom";
 
 interface AuthFormProps {
   onSuccess?: () => void;
@@ -18,6 +19,7 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
   const [policyAgreed, setPolicyAgreed] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const sendWelcomeEmail = async (email: string) => {
     console.log("Attempting to send welcome email to:", email);
@@ -92,8 +94,12 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
         try {
           await sendWelcomeEmail(email);
           console.log("Welcome email flow completed");
+          // Redirect to overview page after successful signup
+          navigate("/overview");
         } catch (emailError) {
           console.error("Welcome email failed but signup succeeded:", emailError);
+          // Still redirect even if welcome email fails
+          navigate("/overview");
         }
         
         toast({
@@ -113,6 +119,8 @@ export function AuthForm({ onSuccess, defaultView = "signin" }: AuthFormProps) {
         }
         
         console.log("Sign in successful:", data);
+        // Redirect to overview page after successful signin
+        navigate("/overview");
         onSuccess?.();
       }
     } catch (error: any) {
