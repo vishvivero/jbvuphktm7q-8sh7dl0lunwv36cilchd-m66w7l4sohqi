@@ -7,4 +7,5 @@ export interface Profile {
   preferred_currency: string | null;
   is_admin: boolean | null;
   selected_strategy: string | null;
+  has_completed_tour: boolean;
 }

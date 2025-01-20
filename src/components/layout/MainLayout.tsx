@@ -1,4 +1,4 @@
-import { Header } from "@/components/Header";
+import Header from "@/components/Header";
 import { InteractiveTour } from "@/components/onboarding/InteractiveTour";
 
 interface MainLayoutProps {
