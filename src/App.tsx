@@ -9,6 +9,7 @@ import Overview from "@/pages/Overview";
 import DebtList from "@/pages/DebtList";
 import { DebtDetailsPage } from "@/components/debt/DebtDetailsPage";
 import About from "@/pages/About";
+import Contact from "@/pages/Contact";
 import Pricing from "@/pages/Pricing";
 import Blog from "@/pages/Blog";
 import FreeTools from "@/pages/FreeTools";
@@ -56,6 +57,7 @@ function App() {
               {/* Public routes */}
               <Route path="/" element={<Layout><Index /></Layout>} />
               <Route path="/about" element={<Layout><About /></Layout>} />
+              <Route path="/contact" element={<Layout><Contact /></Layout>} />
               <Route path="/pricing" element={<Layout><Pricing /></Layout>} />
               <Route path="/blog" element={<Layout><Blog /></Layout>} />
               <Route path="/blog/post/:slug" element={<Layout><BlogPost /></Layout>} />
