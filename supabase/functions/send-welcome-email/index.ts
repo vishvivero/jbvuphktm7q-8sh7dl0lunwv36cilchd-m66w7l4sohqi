@@ -1,7 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -61,7 +60,7 @@ const handler = async (req: Request): Promise<Response> => {
             </p>
 
             <div style="text-align: center; margin-top: 30px;">
-              <a href="${SUPABASE_URL}" 
+              <a href="${Deno.env.get('SUPABASE_URL')}" 
                  style="background-color: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
                 Go to Dashboard
               </a>
