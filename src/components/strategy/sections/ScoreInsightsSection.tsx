@@ -105,6 +105,15 @@ export const ScoreInsightsSection = () => {
       });
     }
 
+    // If no specific recommendations, provide a default one
+    if (recommendations.length === 0) {
+      recommendations.push({
+        text: "Keep monitoring your debt repayment progress and stay consistent with your payments.",
+        icon: <AlertCircle className="h-5 w-5 text-gray-500" />,
+        priority: 7
+      });
+    }
+
     // Sort by priority and return the most relevant recommendation
     return recommendations.sort((a, b) => a.priority - b.priority)[0];
   };
@@ -206,21 +215,23 @@ export const ScoreInsightsSection = () => {
             </div>
           </div>
 
-          <div className={`mt-6 p-4 rounded-lg border transition-all duration-300 ${getRecommendationStyle(scoreDetails.totalScore)}`}>
-            <div className="flex items-start gap-3">
-              {recommendation.icon}
-              <div className="space-y-2">
-                <h4 className="font-medium text-gray-900">Personalized Action Step</h4>
-                <p className="text-sm text-gray-600">{recommendation.text}</p>
-                <div className="flex items-center gap-2 mt-3">
-                  <Award className="h-4 w-4 text-primary" />
-                  <span className="text-xs text-gray-500">
-                    Based on your current debt profile and payment patterns
-                  </span>
+          {recommendation && (
+            <div className={`mt-6 p-4 rounded-lg border transition-all duration-300 ${getRecommendationStyle(scoreDetails.totalScore)}`}>
+              <div className="flex items-start gap-3">
+                {recommendation.icon}
+                <div className="space-y-2">
+                  <h4 className="font-medium text-gray-900">Personalized Action Step</h4>
+                  <p className="text-sm text-gray-600">{recommendation.text}</p>
+                  <div className="flex items-center gap-2 mt-3">
+                    <Award className="h-4 w-4 text-primary" />
+                    <span className="text-xs text-gray-500">
+                      Based on your current debt profile and payment patterns
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
     </motion.div>
