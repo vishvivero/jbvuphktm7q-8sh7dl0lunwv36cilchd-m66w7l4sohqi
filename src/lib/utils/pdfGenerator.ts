@@ -23,40 +23,36 @@ export const generateDebtOverviewPDF = (
   });
 
   const doc = new jsPDF();
-  let currentY = 15;
+  let currentY = 20;
 
-  // Add title and date
-  doc.setFontSize(20);
+  // Add title and header
+  doc.setFontSize(24);
+  doc.setTextColor(41, 37, 36);
   doc.text('Debt Overview Report', 14, currentY);
   
-  currentY += 10;
-  doc.setFontSize(12);
+  // Add metadata
+  currentY += 15;
+  doc.setFontSize(10);
+  doc.setTextColor(107, 114, 128);
   doc.text(`Generated on ${formatDate(new Date())}`, 14, currentY);
-  doc.text(`Strategy: ${selectedStrategy.name}`, 14, currentY + 6);
+  doc.text(`Strategy: ${selectedStrategy.name}`, 14, currentY + 5);
   
   // Add debt summary section
-  currentY += 20;
-  doc.setFontSize(16);
-  doc.text('Current Debt Summary', 14, currentY);
-  currentY += 10;
+  currentY += 25;
   currentY = generateDebtSummaryTable(doc, debts, currentY);
 
   // Add payment details section
-  currentY += 15;
-  doc.setFontSize(16);
-  doc.text('Payment Overview', 14, currentY);
-  currentY += 10;
+  currentY += 20;
   currentY = generatePaymentDetailsTable(doc, debts, currentY, totalMonthlyPayment);
 
   // Add individual repayment schedules
   debts.forEach((debt, index) => {
-    // Add new page for each debt's repayment schedule
     doc.addPage();
-    currentY = 15;
+    currentY = 20;
     
     const monthlyAllocation = allocations.get(debt.id) || debt.minimum_payment;
     const details = payoffDetails[debt.id];
-    const isHighPriorityDebt = index === 0; // First debt in sorted list is highest priority
+    const isHighPriorityDebt = index === 0;
 
     console.log(`Generating repayment schedule for ${debt.name}:`, {
       monthlyAllocation,
@@ -73,65 +69,6 @@ export const generateDebtOverviewPDF = (
       isHighPriorityDebt,
       currentY
     );
-  });
-
-  return doc;
-};
-
-// Alias for backward compatibility
-export const generatePayoffStrategyPDF = generateDebtOverviewPDF;
-
-export const generateAmortizationPDF = (
-  debt: Debt,
-  payoffDetails: { months: number, redistributionHistory?: any[] }
-) => {
-  const doc = new jsPDF();
-  let currentY = 15;
-
-  // Add title and debt info
-  doc.setFontSize(20);
-  doc.text(`Amortization Schedule: ${debt.name}`, 14, currentY);
-  
-  currentY += 15;
-  doc.setFontSize(12);
-  doc.text(`Generated on ${formatDate(new Date())}`, 14, currentY);
-  
-  currentY += 20;
-  currentY = generateRepaymentScheduleTable(
-    doc,
-    debt,
-    payoffDetails,
-    debt.minimum_payment,
-    false,
-    currentY
-  );
-
-  return doc;
-};
-
-export const generatePaymentTrendsPDF = (payments: any[]) => {
-  const doc = new jsPDF();
-  let currentY = 15;
-
-  // Add title
-  doc.setFontSize(20);
-  doc.text('Payment Trends Report', 14, currentY);
-  
-  currentY += 15;
-  doc.setFontSize(12);
-  doc.text(`Generated on ${formatDate(new Date())}`, 14, currentY);
-  
-  currentY += 20;
-  doc.setFontSize(16);
-  doc.text('Payment History', 14, currentY);
-  
-  // Add payment history table
-  currentY += 10;
-  payments.forEach((payment) => {
-    doc.setFontSize(12);
-    doc.text(`${formatDate(new Date(payment.payment_date))}`, 14, currentY);
-    doc.text(`${payment.currency_symbol}${payment.total_payment.toLocaleString()}`, 100, currentY);
-    currentY += 10;
   });
 
   return doc;
