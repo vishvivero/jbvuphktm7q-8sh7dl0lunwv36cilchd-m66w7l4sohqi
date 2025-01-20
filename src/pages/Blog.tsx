@@ -82,6 +82,11 @@ const Blog = () => {
                     About
                   </Link>
                 </li>
+                <li>
+                  <Link to="/contact" className="hover:text-primary transition-colors">
+                    Contact
+                  </Link>
+                </li>
               </ul>
             </div>
             <div>
