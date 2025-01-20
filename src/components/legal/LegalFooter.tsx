@@ -25,6 +25,9 @@ export const LegalFooter = () => {
       <Link to="/gdpr" onClick={handleLinkClick} className="hover:text-primary">
         GDPR Compliance
       </Link>
+      <Link to="/contact" onClick={handleLinkClick} className="hover:text-primary">
+        Contact
+      </Link>
     </div>
   );
 };

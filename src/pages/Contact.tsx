@@ -15,7 +15,7 @@ const Contact = () => {
   };
 
   const handleEmail = () => {
-    window.open('mailto:hi@debtfreeo.com', '_blank');
+    window.location.href = 'mailto:hi@debtfreeo.com';
   };
 
   return (
