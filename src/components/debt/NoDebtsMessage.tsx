@@ -50,7 +50,6 @@ export const NoDebtsMessage = () => {
       <Button 
         onClick={() => setIsDialogOpen(true)}
         className="bg-emerald-600 hover:bg-emerald-700"
-        data-tour="add-first-debt"
       >
         Add Your First Debt
       </Button>
